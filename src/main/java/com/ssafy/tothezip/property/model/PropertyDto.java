@@ -14,6 +14,5 @@ public class PropertyDto {
     private String roadBun;
     private double latitude;
     private double longitude;
-    // private Year buildYear; 우얄까요
     private int buildYear;
 }

@@ -4,8 +4,11 @@ import com.ssafy.tothezip.user.model.UserDto;
 
 public interface UserService {
 
-    // 회원 가입 (id 중복검사 할건지?)
+    // 회원 가입
     void regist(UserDto userDto);
+
+    // email 중복 확인
+    boolean emailDuplicate(String email);
 
     // 로그인
     UserDto login(String email,String password);
@@ -16,7 +19,7 @@ public interface UserService {
     // 회원 정보 수정
     UserDto update(UserDto userDto);
 
-    // 회원 탈퇴 (userId 아니면 email)
+    // 회원 탈퇴
     void delete(int userId);
 
 }

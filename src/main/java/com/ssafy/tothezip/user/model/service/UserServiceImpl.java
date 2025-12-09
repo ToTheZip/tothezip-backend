@@ -17,6 +17,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean emailDuplicate(String email) {
+        return userMapper.emailDuplicate(email);
+    }
+
+    @Override
     public UserDto login(String email, String password) {
         return userMapper.login(email, password);
     }
