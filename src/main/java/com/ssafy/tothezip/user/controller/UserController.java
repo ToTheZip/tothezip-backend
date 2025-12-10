@@ -33,4 +33,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
+    // 이메일 중복 확인
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean exists = userService.emailDuplicate(email);
+        return ResponseEntity.ok(exists);
+    }
+
 }

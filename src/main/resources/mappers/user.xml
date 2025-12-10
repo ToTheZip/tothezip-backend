@@ -5,7 +5,7 @@
 
 <mapper namespace="com.ssafy.tothezip.user.model.mapper.UserMapper">
 
-    <resultMap id="UserResultMap" type="com.ssafy.tothezip.user.model.UserDto">
+    <resultMap id="UserResultMap" type="UserDto">
         <id     column="user_id"     property="userId"/>
         <result column="email"       property="email"/>
         <result column="password"    property="password"/>
@@ -15,10 +15,19 @@
 
     <!-- 회원 가입 -->
     <insert id="regist"
-            parameterType="com.ssafy.tothezip.user.model.UserDto"
+            parameterType="UserDto"
             useGeneratedKeys="true"
             keyProperty="userId">
         INSERT INTO users (email, password, user_name, profile_img)
         VALUES (#{email}, #{password}, #{userName}, #{profileImg})
     </insert>
+
+    <!-- 이메일 중복 확인 -->
+    <select id="emailDuplicate"
+            parameterType="string"
+            resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM users
+        WHERE email = #{email}
+    </select>
 </mapper>
