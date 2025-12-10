@@ -2,9 +2,12 @@ package com.ssafy.tothezip.user.model.service;
 
 import com.ssafy.tothezip.user.model.UserDto;
 import com.ssafy.tothezip.user.model.mapper.UserMapper;
+import com.ssafy.tothezip.util.MailUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Random;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +28,31 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean emailDuplicate(String email) {
         return userMapper.emailDuplicate(email);
+    }
+
+    // 인증코드 생성 + 메일 발송
+    @Override
+    public String sendEmailCode(String email) {
+        // 6자리 난수 생성
+        String verifyCode = String.valueOf(new Random().nextInt(900_000) + 100_000);
+
+        // 메일 발송 (전에 쓰던 MailUtil 그대로 사용한다고 가정)
+        MailUtil.sendVerificationCode(email, verifyCode);
+
+        return verifyCode;
+    }
+
+    // 사용자가 제출한 코드/이메일이 세션에 저장된 것과 일치하는지 확인
+    @Override
+    public boolean verifyEmailCode(String submittedCode,
+                                   String submittedEmail,
+                                   String sessionCode,
+                                   String sessionEmail) {
+
+        return sessionCode != null
+                && sessionEmail != null
+                && sessionCode.equals(submittedCode)
+                && sessionEmail.equals(submittedEmail);
     }
 
 //    @Override
