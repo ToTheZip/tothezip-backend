@@ -4,11 +4,10 @@ import com.ssafy.tothezip.user.model.UserDto;
 import com.ssafy.tothezip.user.model.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/user")
@@ -18,14 +17,20 @@ public class UserController {
 
     private UserService userService;
 
-    @GetMapping("/regist")
-    public String regist() {
-        return "user/regist";
-    }
+    // 회원가입
+    @PostMapping
+    public ResponseEntity<UserDto> regist(@RequestBody UserDto userDto) {
+        log.debug("regist user: {}", userDto);
 
-    @PostMapping("/regist")
-    public String regist(@ModelAttribute UserDto userDto) {
-        return "redirect:/user/login";
+        if (userService.emailDuplicate(userDto.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        userService.regist(userDto);
+
+        userDto.setPassword(null);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
 }
