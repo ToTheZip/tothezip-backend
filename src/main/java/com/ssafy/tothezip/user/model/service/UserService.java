@@ -10,6 +10,10 @@ public interface UserService {
     // email 중복 확인
     boolean emailDuplicate(String email);
 
+    // email 인증
+    String sendEmailCode(String email);
+    boolean verifyEmailCode(String submittedCode, String submittedEmail, String sessionCode, String sessionEmail);
+
     // 로그인
     UserDto login(String email,String password);
 
