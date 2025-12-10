@@ -15,7 +15,8 @@ public interface UserMapper {
     boolean emailDuplicate(@Param("email") String email);
 
     // 로그인
-    UserDto login(@Param("email") String email, @Param("password") String password);
+//    UserDto login(@Param("email") String email, @Param("password") String password);
+    UserDto findByEmail(@Param("email") String email);
 
     // 회원 정보 확인
     UserDto getInfo(@Param("userId") int userId);
