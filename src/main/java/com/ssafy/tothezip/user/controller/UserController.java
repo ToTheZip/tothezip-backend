@@ -80,4 +80,11 @@ public class UserController {
         }
         return ResponseEntity.ok(updatedUser);
     }
+
+    // 회원 탈퇴
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> delete(@PathVariable int userId) {
+        userService.delete(userId);
+        return ResponseEntity.noContent().build();
+    }
 }
