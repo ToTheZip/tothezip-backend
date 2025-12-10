@@ -40,4 +40,17 @@ public class UserController {
         return ResponseEntity.ok(exists);
     }
 
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<UserDto> login(@RequestBody UserDto loginRequest) {
+        log.debug("login email: {}", loginRequest.getEmail());
+
+        UserDto loginUser = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        if (loginUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        loginUser.setPassword(null);
+        return ResponseEntity.ok(loginUser);
+    }
 }
