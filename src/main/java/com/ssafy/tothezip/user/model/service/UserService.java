@@ -17,7 +17,7 @@ public interface UserService {
     UserDto getInfo(int userId);
 
     // 회원 정보 수정
-    UserDto update(UserDto userDto);
+    int update(UserDto userDto);
 
     // 회원 탈퇴
     void delete(int userId);

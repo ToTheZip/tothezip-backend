@@ -18,8 +18,8 @@ public class UserController {
     private UserService userService;
 
     // 회원가입
-    @PostMapping
-    public ResponseEntity<UserDto> regist(@RequestBody UserDto userDto) {
+    @PostMapping("/regist")
+    public ResponseEntity<Void> regist(@RequestBody UserDto userDto) {
         log.debug("regist user: {}", userDto);
 
         if (userService.emailDuplicate(userDto.getEmail())) {
@@ -28,9 +28,7 @@ public class UserController {
 
         userService.regist(userDto);
 
-        userDto.setPassword(null);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // 이메일 중복 확인
@@ -63,5 +61,23 @@ public class UserController {
         }
         user.setPassword(null);
         return ResponseEntity.ok(user);
+    }
+
+    // 회원 정보 수정
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserDto> update(@PathVariable int userId,
+                                          @RequestBody UserDto userDto) {
+        userDto.setUserId(userId);
+
+        int updated = userService.update(userDto);
+        if (updated == 0) {
+            return ResponseEntity.notFound().build();
+        }
+
+        UserDto updatedUser = userService.getInfo(userId);
+        if (updatedUser != null) {
+            updatedUser.setPassword(null);
+        }
+        return ResponseEntity.ok(updatedUser);
     }
 }
