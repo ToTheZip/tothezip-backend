@@ -1,5 +1,7 @@
 package com.ssafy.tothezip.user.controller;
 
+import com.ssafy.tothezip.security.JWTUtil;
+import com.ssafy.tothezip.user.model.LoginResponseDto;
 import com.ssafy.tothezip.user.model.UserDto;
 import com.ssafy.tothezip.user.model.service.UserService;
 import lombok.AllArgsConstructor;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private UserService userService;
-
+    private final JWTUtil jwtUtil;
     // 회원가입
     @PostMapping("/regist")
     public ResponseEntity<Void> regist(@RequestBody UserDto userDto) {
@@ -38,18 +40,29 @@ public class UserController {
         return ResponseEntity.ok(exists);
     }
 
-    // 로그인
+    // 로그인 + JWT 토큰 발급
     @PostMapping("/login")
-    public ResponseEntity<UserDto> login(@RequestBody UserDto loginRequest) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody UserDto loginRequest) {
         log.debug("login email: {}", loginRequest.getEmail());
 
-        UserDto loginUser = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        UserDto loginUser =
+                userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+
         if (loginUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        // 비밀번호는 응답에서 제거
         loginUser.setPassword(null);
-        return ResponseEntity.ok(loginUser);
+
+        String accessToken = jwtUtil.createAccessToken(loginUser);
+        String refreshToken = jwtUtil.createRefreshToken(loginUser);
+
+        LoginResponseDto body = new LoginResponseDto(accessToken, refreshToken, loginUser);
+
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + accessToken)
+                .body(body);
     }
 
     // 회원 정보 조회
