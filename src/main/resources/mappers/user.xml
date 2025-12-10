@@ -39,4 +39,13 @@
         WHERE email = #{email}
         AND password = #{password}
     </select>
+
+    <!-- 회원 정보 조회 -->
+    <select id="getInfo"
+            parameterType="int"
+            resultMap="UserResultMap">
+        SELECT user_id, email, password, user_name, profile_img
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
 </mapper>

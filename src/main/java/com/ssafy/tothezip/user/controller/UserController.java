@@ -53,4 +53,15 @@ public class UserController {
         loginUser.setPassword(null);
         return ResponseEntity.ok(loginUser);
     }
+
+    // 회원 정보 조회
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getInfo(@PathVariable int userId) {
+        UserDto user = userService.getInfo(userId);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        user.setPassword(null);
+        return ResponseEntity.ok(user);
+    }
 }
