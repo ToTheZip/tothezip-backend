@@ -48,4 +48,12 @@
         FROM users
         WHERE user_id = #{userId}
     </select>
+
+    <!-- 회원 정보 수정 -->
+    <update id="update"
+            parameterType="UserDto">
+        UPDATE users
+        SET email = #{email}, password = #{password}, user_name = #{userName}, profile_img = #{profileImg}
+        WHERE user_id = #{userId}
+    </update>
 </mapper>
