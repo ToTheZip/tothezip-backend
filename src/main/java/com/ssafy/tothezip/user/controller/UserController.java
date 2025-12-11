@@ -1,10 +1,7 @@
 package com.ssafy.tothezip.user.controller;
 
 import com.ssafy.tothezip.security.JWTUtil;
-import com.ssafy.tothezip.user.model.EmailRequestDto;
-import com.ssafy.tothezip.user.model.EmailVerifyRequestDto;
-import com.ssafy.tothezip.user.model.LoginResponseDto;
-import com.ssafy.tothezip.user.model.UserDto;
+import com.ssafy.tothezip.user.model.*;
 import com.ssafy.tothezip.user.model.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -13,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -170,5 +168,21 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable int userId) {
         userService.delete(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 사용자 관심태그 저장
+    @PostMapping("/{userId}/preferences")
+    public ResponseEntity<Void> savePreferences(@PathVariable int userId,
+                                                @RequestBody PreferenceDto preferenceDto) {
+
+        userService.savePreferences(userId, preferenceDto);
+        return ResponseEntity.ok().build();
+    }
+
+    // 사용자 관심태그 조회
+    @GetMapping("/{userId}/preferences")
+    public ResponseEntity<List<Integer>> getPreferences(@PathVariable int userId) {
+        List<Integer> tagIds = userService.getPreferences(userId);
+        return ResponseEntity.ok(tagIds);
     }
 }

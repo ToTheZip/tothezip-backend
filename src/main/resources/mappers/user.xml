@@ -70,4 +70,28 @@
         DELETE FROM users
         WHERE user_id = #{userId}
     </delete>
+
+    <!-- 사용자 관심 태그 전부 삭제 -->
+    <delete id="deleteUserPreferences" parameterType="int">
+        DELETE FROM user_preferences_tags
+        WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 사용자 관심 태그 여러 개 추가 -->
+    <insert id="insertUserPreferences">
+        INSERT INTO user_preferences_tags (user_id, tag_id)
+        VALUES
+        <foreach collection="tagIds" item="tagId" separator=",">
+            (#{userId}, #{tagId})
+        </foreach>
+    </insert>
+
+    <!-- 사용자 관심 태그 조회 -->
+    <select id="getUserPreferences"
+            parameterType="int"
+            resultType="int">
+        SELECT tag_id
+        FROM user_preferences_tags
+        WHERE user_id = #{userId}
+    </select>
 </mapper>
