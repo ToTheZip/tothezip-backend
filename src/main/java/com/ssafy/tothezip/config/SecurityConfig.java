@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                         // 그 외 /user/** 는 인증 필요
                         .requestMatchers("/user/email/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/*/preferences").permitAll()
                         .anyRequest().authenticated()
                 )
 

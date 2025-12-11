@@ -1,12 +1,15 @@
 package com.ssafy.tothezip.user.model.service;
 
+import com.ssafy.tothezip.user.model.PreferenceDto;
 import com.ssafy.tothezip.user.model.UserDto;
 import com.ssafy.tothezip.user.model.mapper.UserMapper;
 import com.ssafy.tothezip.util.MailUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -92,5 +95,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(int userId) {
         userMapper.delete(userId);
+    }
+
+    @Override
+    @Transactional
+    public void savePreferences(int userId, PreferenceDto preferenceDto) {
+        userMapper.deleteUserPreferences(userId);
+
+        if (preferenceDto != null &&
+                preferenceDto.getTagIds() != null &&
+                !preferenceDto.getTagIds().isEmpty()) {
+            userMapper.insertUserPreferences(userId, preferenceDto.getTagIds());
+        }
+    }
+
+    @Override
+    public List<Integer> getPreferences(int userId) {
+        return userMapper.getUserPreferences(userId);
     }
 }
