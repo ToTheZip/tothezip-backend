@@ -2,7 +2,6 @@ package com.ssafy.tothezip.notice.controller;
 
 import com.ssafy.tothezip.notice.model.NoticeDto;
 import com.ssafy.tothezip.notice.model.service.NoticeService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -58,14 +57,7 @@ public class AdminNoticeController {
     @PostMapping("/{noticeId}/pin")
     public ResponseEntity<Void> pin(
             @PathVariable int noticeId,
-            Authentication authentication,
-            HttpServletRequest request) {
-        System.out.println("Authorization=" + request.getHeader("Authorization"));
-        System.out.println("auth=" + authentication);
-        System.out.println("auth=" + authentication);
-        System.out.println("name=" + (authentication != null ? authentication.getName() : null));
-        System.out.println("principal=" + (authentication != null ? authentication.getPrincipal() : null));
-        System.out.println("authorities=" + (authentication != null ? authentication.getAuthorities() : null));
+            Authentication authentication) {
 
         String email = (authentication != null) ? authentication.getName() : null;
         noticeService.pin(noticeId, email);
