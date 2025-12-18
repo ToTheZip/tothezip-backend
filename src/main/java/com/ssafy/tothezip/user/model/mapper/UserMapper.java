@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import com.ssafy.tothezip.user.model.UserDto;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper {
 
@@ -27,4 +29,12 @@ public interface UserMapper {
     // 회원 탈퇴
     void delete(@Param("userId") int userId);
 
+    // 사용자 관심태그 전부 삭제
+    void deleteUserPreferences(@Param("userId") int userId);
+
+    // 사용자 관심태그 여러 개 insert
+    void insertUserPreferences(@Param("userId") int userId, @Param("tagIds") List<Integer> tagIds);
+
+    // 사용자 관심태그 조회
+    List<Integer> getUserPreferences(@Param("userId") int userId);
 }
