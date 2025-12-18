@@ -3,6 +3,135 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ssafy.notice.model.mapper.NoticeMapper">
+<mapper namespace="com.ssafy.tothezip.notice.model.mapper.NoticeMapper">
 
+    <!-- 목록 요약용 -->
+    <resultMap id="NoticeSummaryMap" type="com.ssafy.tothezip.notice.model.NoticeDto$Summary">
+        <result property="noticeId" column="notice_id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="writer" column="writer"/>
+        <result property="views" column="views"/>
+        <result property="registDate" column="notice_regist_date"/>
+        <result property="pinned" column="pinned"/>
+    </resultMap>
+
+    <!-- 목록 상세용 -->
+    <resultMap id="NoticeDetailMap" type="com.ssafy.tothezip.notice.model.NoticeDto$Detail">
+        <result property="noticeId" column="notice_id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="writer" column="writer"/>
+        <result property="views" column="views"/>
+        <result property="registDate" column="notice_regist_date"/>
+        <result property="pinned" column="pinned"/>
+    </resultMap>
+
+    <!-- 중요 공지 목록 -->
+    <select id="getPinned"
+            resultMap="NoticeSummaryMap">
+        SELECT n.*, 1 AS pinned
+        FROM notice_pins p
+        JOIN notices n ON n.notice_id = p.notice_id
+        <where>
+            <if test="typeFilter != 'ALL'">
+                n.type = #{typeFilter}
+            </if>
+        </where>
+        ORDER BY n.notice_regist_date DESC
+    </select>
+
+    <!-- 일반 공지 개수 (페이징용) -->
+    <select id="countNotices"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM notices n
+        LEFT JOIN notice_pins p ON p.notice_id = n.notice_id
+        <where>
+            p.notice_id IS NULL
+            <if test="typeFilter != 'ALL'">
+                AND n.type = #{typeFilter}
+            </if>
+        </where>
+    </select>
+
+    <!-- 일반 공지 목록 -->
+    <select id="getNotices"
+            resultMap="NoticeSummaryMap">
+        SELECT n.*, 0 AS pinned
+        FROM notices n
+        LEFT JOIN notice_pins p ON p.notice_id = n.notice_id
+        <where>
+            p.notice_id IS NULL
+            <if test="typeFilter != 'ALL'">
+                AND n.type = #{typeFilter}
+            </if>
+        </where>
+
+        <choose>
+            <when test="sort == 'hot'">
+                ORDER BY n.views DESC, n.notice_regist_date DESC, n.notice_id DESC
+            </when>
+            <otherwise>
+                ORDER BY n.notice_regist_date DESC, n.notice_id DESC
+            </otherwise>
+        </choose>
+
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 상세용 -->
+    <select id="detail"
+            resultMap="NoticeDetailMap">
+        SELECT n.*, (p.notice_id IS NOT NULL) AS pinned
+        FROM notices n
+        LEFT JOIN notice_pins p ON p.notice_id = n.notice_id
+        WHERE n.notice_id = #{noticeId}
+    </select>
+
+    <!-- 조회수 up -->
+    <update id="increaseViews">
+        UPDATE notices
+        SET views = views + 1
+        WHERE notice_id = #{noticeId}
+    </update>
+
+    <!-- 공지(뉴스) 등록 -->
+    <insert id="createNotice"
+            parameterType="map"
+            useGeneratedKeys="true"
+            keyProperty="index.noticeId"
+            keyColumn="notice_id">
+        INSERT INTO notices (type, title, content, views, notice_regist_date, writer, source_subscription_id)
+        VALUES ('뉴스', #{index.title}, #{index.content}, 0, NOW(), #{writer}, NULL)
+    </insert>
+
+    <!-- 공지(뉴스) 수정 -->
+    <update id="updateNotice"
+            parameterType="map">
+        UPDATE notices
+        SET title = #{index.title}, content = #{index.content}
+        WHERE notice_id = #{noticeId}
+        AND type = '뉴스'
+    </update>
+
+    <!-- 공지(뉴스) 삭제 -->
+    <delete id="deleteNotice">
+        DELETE FROM notices
+        WHERE notice_id = #{noticeId}
+        AND type = '뉴스'
+    </delete>
+
+    <!-- 중요 공지 o -->
+    <insert id="pin">
+        INSERT IGNORE INTO notice_pins (notice_id, pinned_at, pinned_by)
+        VALUES (#{noticeId}, NOW(), #{pinnedBy})
+    </insert>
+
+    <!-- 중요 공지 x -->
+    <delete id="unpin">
+        DELETE FROM notice_pins
+        WHERE notice_id = #{noticeId}
+    </delete>
 </mapper>
