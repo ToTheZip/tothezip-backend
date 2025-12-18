@@ -44,8 +44,7 @@ public class SecurityConfig {
         var exceptionFilter = new SecurityExceptionHandlingFilter();
 
         http
-                // /user/** 경로에만 이 설정 적용 (원하면 "/api/**"로 바꿔도 됨)
-                .securityMatcher("/user/**")
+                .securityMatcher("/**")
 
                 .cors(cors -> cors.configurationSource(corsConfig))
                 .csrf(csrf -> csrf.disable())
@@ -60,6 +59,7 @@ public class SecurityConfig {
                         // 그 외 /user/** 는 인증 필요
                         .requestMatchers("/user/email/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/*/preferences").permitAll()
+                        .requestMatchers("/admin/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
@@ -82,7 +82,7 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // /user/**에만 CORS 설정 적용
-        source.registerCorsConfiguration("/user/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
