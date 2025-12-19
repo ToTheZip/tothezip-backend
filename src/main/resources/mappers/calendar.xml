@@ -3,6 +3,36 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ssafy.calendar.model.mapper.CalendarMapper">
+<mapper namespace="com.ssafy.tothezip.calendar.model.mapper.CalendarMapper">
+
+    <resultMap id="calendarResultMap" type="com.ssafy.tothezip.calendar.model.CalendarDto">
+        <id     property="subscriptionId"   column="subscription_id"/>
+        <result property="name"              column="name"/>
+        <result property="startDate"         column="start_date"/>
+        <result property="endDate"           column="end_date"/>
+        <result property="announcementDate"  column="announcement_date"/>
+    </resultMap>
+
+    <select id="getNotice"
+            resultMap="calendarResultMap">
+        SELECT s.subscription_id, s.name, s.start_date, s.end_date, s.announcement_date
+        FROM subscriptions s
+        WHERE (s.start_date &lt;= #{to} AND s.end_date &gt;= #{from})
+        OR (s.announcement_date BETWEEN #{from} AND #{to})
+        ORDER BY s.start_date ASC, s.subscription_id ASC
+    </select>
+
+    <select id="getMine"
+            resultMap="calendarResultMap">
+        SELECT s.subscription_id, s.name, s.start_date, s.end_date, s.announcement_date
+        FROM favorites f
+        JOIN subscriptions s
+        ON s.subscription_id = f.reference_id
+        WHERE f.user_id = #{userId}
+        AND f.type = #{type}
+        AND ((s.start_date &lt;= #{to} AND s.end_date &gt;= #{from})
+        OR (s.announcement_date BETWEEN #{from} AND #{to}))
+        ORDER BY s.start_date ASC, s.subscription_id ASC
+    </select>
 
 </mapper>
