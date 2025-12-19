@@ -59,10 +59,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                         // 그 외 /user/** 는 인증 필요
                         .requestMatchers("/user/email/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/user/*/preferences").permitAll()
                         // 공지 목록 허용
                         .requestMatchers(HttpMethod.GET, "/notice").permitAll()
                         .requestMatchers(HttpMethod.GET, "/notice/main").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/notice/calendar").permitAll()
                         // 공지 상세 권한 설정
                         .requestMatchers(HttpMethod.GET, "/notice/*").authenticated()
                         .requestMatchers("/admin/**").authenticated()

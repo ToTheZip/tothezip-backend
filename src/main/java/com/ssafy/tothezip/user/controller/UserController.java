@@ -1,5 +1,6 @@
 package com.ssafy.tothezip.user.controller;
 
+import com.ssafy.tothezip.security.CustomUserDetails;
 import com.ssafy.tothezip.security.JWTUtil;
 import com.ssafy.tothezip.user.model.*;
 import com.ssafy.tothezip.user.model.service.UserService;
@@ -8,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -135,8 +137,11 @@ public class UserController {
     }
 
     // 회원 정보 조회
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getInfo(@PathVariable int userId) {
+    @GetMapping
+    public ResponseEntity<UserDto> getInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        int userId = userDetails.getUser().getUserId();
+
         UserDto user = userService.getInfo(userId);
         if (user == null) {
             return ResponseEntity.notFound().build();
@@ -146,9 +151,12 @@ public class UserController {
     }
 
     // 회원 정보 수정
-    @PutMapping("/{userId}")
-    public ResponseEntity<UserDto> update(@PathVariable int userId,
+    @PutMapping
+    public ResponseEntity<UserDto> update(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @RequestBody UserDto userDto) {
+
+        int userId = userDetails.getUser().getUserId();
+
         userDto.setUserId(userId);
 
         int updated = userService.update(userDto);
@@ -164,31 +172,42 @@ public class UserController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> delete(@PathVariable int userId) {
+    @DeleteMapping
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        int userId = userDetails.getUser().getUserId();
+
         userService.delete(userId);
         return ResponseEntity.noContent().build();
     }
 
     // 사용자 관심태그 및 희망 가격, 평수 저장
-    @PostMapping("/{userId}/preferences")
-    public ResponseEntity<Void> savePreferences(@PathVariable int userId,
+    @PostMapping("/preferences")
+    public ResponseEntity<Void> savePreferences(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                 @RequestBody PreferenceDto preferenceDto) {
+
+        int userId = userDetails.getUser().getUserId();
 
         userService.savePreferences(userId, preferenceDto);
         return ResponseEntity.ok().build();
     }
 
     // 사용자 관심태그 조회
-    @GetMapping("/{userId}/preferences/tags")
-    public ResponseEntity<List<Integer>> getPreferences(@PathVariable int userId) {
+    @GetMapping("/preferences/tags")
+    public ResponseEntity<List<Integer>> getPreferences(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        int userId = userDetails.getUser().getUserId();
+
         List<Integer> tagIds = userService.getPreferences(userId);
         return ResponseEntity.ok(tagIds);
     }
 
     // 사용자 희망 가격, 평수 조회
-    @GetMapping("/{userId}/preferences/range")
-    public ResponseEntity<PreferenceDto> getPreferencesRange(@PathVariable int userId) {
+    @GetMapping("/preferences/range")
+    public ResponseEntity<PreferenceDto> getPreferencesRange(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        int userId = userDetails.getUser().getUserId();
+
         PreferenceDto range = userService.getPreferenceRange(userId);
         return ResponseEntity.ok(range);
     }
