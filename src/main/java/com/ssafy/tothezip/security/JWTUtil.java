@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 
@@ -17,6 +18,11 @@ import java.util.Map;
 public class JWTUtil {
 
     private SecretKey key;
+
+    // 테스트용
+    @Value("${ssafy.jwt.secret}")
+    private String secret;
+    // ---
 
     @Value("${ssafy.jwt.access-expmin}")
     private long accessExpMin;
@@ -27,7 +33,11 @@ public class JWTUtil {
     @PostConstruct
     public void init() {
         // 슬라이드처럼 서버 기동 시 랜덤 key 생성
-        this.key = Jwts.SIG.HS256.key().build();
+        // 이걸루 써야함
+        // this.key = Jwts.SIG.HS256.key().build();
+        // 테스트용
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        // ---
     }
 
     // Access Token

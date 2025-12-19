@@ -68,6 +68,7 @@
     </select>
 
     <!-- 회원 정보 수정 -->
+    <!-- null 값 방지하려면 코드 추가 -->
     <update id="update"
             parameterType="UserDto">
         UPDATE users
@@ -118,6 +119,7 @@
     </insert>
 
     <!-- 희망 가격, 평수 조회 -->
+    <!-- tagIds가 null로 리턴되는데, resultmap으로 안하고 min_price as minPrice로 바꾸면 됨. -->
     <select id="getPreferenceRange"
             parameterType="int"
             resultMap="PreferenceResultMap">
