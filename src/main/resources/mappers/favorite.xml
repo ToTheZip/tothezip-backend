@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.tothezip.favorite.model.mapper.FavoriteMapper">
+    <select id="isLike" resultType="int">
+        SELECT COUNT(1)
+        FROM favorites
+        WHERE user_id = #{userId}
+        AND type = #{type}
+        AND reference_id = #{referenceId}
+    </select>
+
+    <insert id="like">
+        INSERT INTO favorites (user_id, type, reference_id)
+        VALUES (#{userId}, #{type}, #{referenceId})
+    </insert>
+
+    <delete id="dislike">
+        DELETE FROM favorites
+        WHERE user_id = #{userId}
+        AND type = #{type}
+        AND reference_id = #{referenceId}
+    </delete>
+</mapper>
