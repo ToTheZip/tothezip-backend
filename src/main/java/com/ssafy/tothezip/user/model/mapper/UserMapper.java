@@ -1,5 +1,6 @@
 package com.ssafy.tothezip.user.model.mapper;
 
+import com.ssafy.tothezip.user.model.PreferenceDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.ssafy.tothezip.user.model.UserDto;
@@ -37,4 +38,11 @@ public interface UserMapper {
 
     // 사용자 관심태그 조회
     List<Integer> getUserPreferences(@Param("userId") int userId);
+
+    // 희망 가격, 평수 저장
+    void savePreferenceRange(@Param("userId") int userId, @Param("pref") PreferenceDto pref);
+
+    // 희망 가격, 평수 조회
+    PreferenceDto getPreferenceRange(@Param("userId") int userId);
+
 }

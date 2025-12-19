@@ -13,6 +13,17 @@
         <result column="profile_img" property="profileImg"/>
     </resultMap>
 
+    <resultMap id="PreferenceResultMap" type="PreferenceDto">
+        <!-- 가격 범위 -->
+        <result column="min_price" property="minPrice"/>
+        <result column="max_price" property="maxPrice"/>
+
+        <!-- 평수 범위 -->
+        <result column="min_area"  property="minArea"/>
+        <result column="max_area"  property="maxArea"/>
+    </resultMap>
+
+
     <!-- 회원 가입 -->
     <insert id="regist"
             parameterType="UserDto"
@@ -92,6 +103,27 @@
             resultType="int">
         SELECT tag_id
         FROM user_preferences_tags
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 희망 가격, 평수 저장 -->
+    <insert id="savePreferenceRange">
+        INSERT INTO preferences (user_id, min_price, max_price, min_area, max_area)
+        VALUES (#{userId}, #{pref.minPrice}, #{pref.maxPrice}, #{pref.minArea}, #{pref.maxArea})
+        ON DUPLICATE KEY UPDATE
+        min_price = VALUES(min_price),
+        max_price = VALUES(max_price),
+        min_area  = VALUES(min_area),
+        max_area  = VALUES(max_area)
+    </insert>
+
+    <!-- 희망 가격, 평수 조회 -->
+    <select id="getPreferenceRange"
+            parameterType="int"
+            resultMap="PreferenceResultMap">
+        SELECT
+        min_price, max_price, min_area, max_area
+        FROM preferences
         WHERE user_id = #{userId}
     </select>
 </mapper>
