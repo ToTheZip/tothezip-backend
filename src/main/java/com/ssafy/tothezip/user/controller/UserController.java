@@ -170,7 +170,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // 사용자 관심태그 저장
+    // 사용자 관심태그 및 희망 가격, 평수 저장
     @PostMapping("/{userId}/preferences")
     public ResponseEntity<Void> savePreferences(@PathVariable int userId,
                                                 @RequestBody PreferenceDto preferenceDto) {
@@ -180,9 +180,16 @@ public class UserController {
     }
 
     // 사용자 관심태그 조회
-    @GetMapping("/{userId}/preferences")
+    @GetMapping("/{userId}/preferences/tags")
     public ResponseEntity<List<Integer>> getPreferences(@PathVariable int userId) {
         List<Integer> tagIds = userService.getPreferences(userId);
         return ResponseEntity.ok(tagIds);
+    }
+
+    // 사용자 희망 가격, 평수 조회
+    @GetMapping("/{userId}/preferences/range")
+    public ResponseEntity<PreferenceDto> getPreferencesRange(@PathVariable int userId) {
+        PreferenceDto range = userService.getPreferenceRange(userId);
+        return ResponseEntity.ok(range);
     }
 }

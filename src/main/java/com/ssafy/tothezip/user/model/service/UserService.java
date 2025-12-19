@@ -29,9 +29,12 @@ public interface UserService {
     // 회원 탈퇴
     void delete(int userId);
 
-    // 관심태그 저장
+    // 관심태그 및 희망 가격, 평수 저장
     void savePreferences(int userId, PreferenceDto preferenceDto);
 
     // 관심태그 조회
     List<Integer> getPreferences(int userId);
+
+    // 희망 가격, 평수 조회
+    PreferenceDto getPreferenceRange(int userId);
 }

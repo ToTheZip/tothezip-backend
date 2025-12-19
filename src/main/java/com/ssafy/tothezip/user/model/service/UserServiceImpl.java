@@ -100,6 +100,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void savePreferences(int userId, PreferenceDto preferenceDto) {
+
+        userMapper.savePreferenceRange(userId, preferenceDto);
+
         userMapper.deleteUserPreferences(userId);
 
         if (preferenceDto != null &&
@@ -112,5 +115,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Integer> getPreferences(int userId) {
         return userMapper.getUserPreferences(userId);
+    }
+
+    @Override
+    public PreferenceDto getPreferenceRange(int userId) {
+        return userMapper.getPreferenceRange(userId);
     }
 }
