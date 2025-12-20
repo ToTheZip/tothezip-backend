@@ -1,45 +1,35 @@
 package com.ssafy.tothezip.util;
 
-import java.io.InputStream;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
-import jakarta.mail.*;
-import jakarta.mail.internet.*;
 
+@Service
+@Slf4j
 public class MailUtil {
-    private static String username;
-    private static String password; // 중요: Google '앱' 비밀번호
-    private static Properties props;
+    @Value("${mail.smtp.username:}")
+    private String username;
 
-    // config.properties에서 설정 로드
-    static {
-        try {
-            Properties configProp = new Properties();
-            // config.properties 로드
-            InputStream is = MailUtil.class.getClassLoader()
-                    .getResourceAsStream("config.properties");
-            configProp.load(is);
+    @Value("${mail.smtp.password:}")
+    private String password; // 중요: Google '앱' 비밀번호
 
-            // 1. Google 계정 정보 로드
-            username = configProp.getProperty("mail.smtp.username");
-            password = configProp.getProperty("mail.smtp.password"); // 앱 비밀번호
+    @Value("${mail.smtp.host:smtp.gmail.com}")
+    private String host;
 
-            // 2. SMTP 서버 정보 로드
-            props = new Properties();
-            props.put("mail.smtp.host", configProp.getProperty("mail.smtp.host"));
-            props.put("mail.smtp.port", configProp.getProperty("mail.smtp.port"));
-            props.put("mail.smtp.auth", configProp.getProperty("mail.smtp.auth"));
-            props.put("mail.smtp.starttls.enable", configProp.getProperty("mail.smtp.starttls.enable"));
+    @Value("${mail.smtp.port:587}")
+    private String port;
 
-            if (username == null || password == null) {
-                System.err.println("MailUtil: config.properties에서 이메일 설정을 찾을 수 없습니다.");
-            }
+    @Value("${mail.smtp.auth:true}")
+    private String auth;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("MailUtil: 이메일 설정 로드 실패");
-        }
-    }
+    @Value("${mail.smtp.starttls.enable:true}")
+    private String starttls;
 
     /**
      * 인증 "번호" 발송 메소드
@@ -47,16 +37,25 @@ public class MailUtil {
      * @param toEmail 수신자 이메일
      * @param code    6자리 인증 코드
      */
-    public static void sendVerificationCode(String toEmail, String code) {
+    public void sendVerificationCode(String toEmail, String code) {
 
         /// 디버깅 ///
 //        System.out.println("username: " + username + " password: " + password);
         ///////
 
+        log.info("mail username loaded? {}", (username != null && !username.isBlank()));
+
         if (username == null || password == null) {
             System.err.println("이메일 설정이 로드되지 않아 메일을 발송할 수 없습니다.");
             return;
         }
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.port", port);
+        props.put("mail.smtp.auth", auth);
+        props.put("mail.smtp.starttls.enable", starttls);
+
         Session session = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 // password는 config.properties에서 로드한 16자리 "앱 비밀번호"
