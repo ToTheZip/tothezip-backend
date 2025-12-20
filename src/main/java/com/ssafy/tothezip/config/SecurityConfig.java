@@ -5,21 +5,21 @@ import com.ssafy.tothezip.security.JWTUtil;
 import com.ssafy.tothezip.security.JWTVerificationFilter;
 import com.ssafy.tothezip.security.SecurityExceptionHandlingFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-// BCrypt
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 
@@ -36,58 +36,100 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * 1. 세션 기반 체인: 이메일 인증/회원가입/프로필 업로드
+     */
     @Bean
-    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http,
-                                                      @Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfig) throws Exception {
+    @Order(1)
+    public SecurityFilterChain sessionFlowChain(HttpSecurity http,
+                                                CorsConfigurationSource corsConfig) throws Exception {
+
+        http
+                .securityMatcher(
+                        "/user/email/**",
+                        "/user/profile/upload",
+                        "/user/regist"
+                )
+                .cors(cors -> cors.configurationSource(corsConfig))
+                .csrf(csrf -> csrf.disable())
+                // 세션 허용
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+                .authorizeHttpRequests(auth -> auth
+                        // 이메일 인증/가입 플로우는 비로그인 허용
+                        .requestMatchers(HttpMethod.POST, "/user/email/send-code").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/email/verify").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/profile/upload").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/regist").permitAll()
+                        .anyRequest().denyAll()
+                );
+
+        return http.build();
+    }
+
+    /**
+     * 2. JWT 기반 체인: 나머지 API 전부 (stateless)
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain jwtApiChain(HttpSecurity http,
+                                           CorsConfigurationSource corsConfig) throws Exception {
 
         var jwtVerifyFilter = new JWTVerificationFilter(jwtUtil, userDetailsService);
         var exceptionFilter = new SecurityExceptionHandlingFilter();
 
         http
                 .securityMatcher("/**")
-
                 .cors(cors -> cors.configurationSource(corsConfig))
                 .csrf(csrf -> csrf.disable())
                 .userDetailsService(userDetailsService)
+                // 나머지는 stateless
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
                         // 비로그인 허용
-                        .requestMatchers(HttpMethod.POST, "/user/regist").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/user/check-email").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
-                        // 그 외 /user/** 는 인증 필요
-                        .requestMatchers("/user/email/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user/check-email").permitAll()
+
                         // 공지 목록 허용
                         .requestMatchers(HttpMethod.GET, "/notice").permitAll()
                         .requestMatchers(HttpMethod.GET, "/notice/main").permitAll()
                         .requestMatchers(HttpMethod.GET, "/notice/calendar").permitAll()
-                        // 공지 상세 권한 설정
+
+                        // 공지 상세는 인증 필요
                         .requestMatchers(HttpMethod.GET, "/notice/*").authenticated()
+
                         .requestMatchers("/admin/**").authenticated()
                         .anyRequest().authenticated()
                 )
-
-                // 필터 체인 순서: exceptionFilter → jwtVerifyFilter → UsernamePasswordAuthenticationFilter
+                // 필터 체인 순서
                 .addFilterBefore(jwtVerifyFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(exceptionFilter, JWTVerificationFilter.class);
 
         return http.build();
     }
 
-    // 슬라이드의 corsConfigurationSource
+    /**
+     * CORS
+     * - 세션 쿠키(JSESSIONID) 쓰려면 allowCredentials(true) 필요
+     * - allowedOrigins는 "*" 불가 (정확한 origin만)
+     */
     @Bean
+    @Primary
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:8080"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "http://localhost:8080"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // /user/**에만 CORS 설정 적용
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
