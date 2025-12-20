@@ -3,6 +3,7 @@ package com.ssafy.tothezip.user.controller;
 import com.ssafy.tothezip.security.CustomUserDetails;
 import com.ssafy.tothezip.security.JWTUtil;
 import com.ssafy.tothezip.user.model.*;
+import com.ssafy.tothezip.user.model.service.ProfileImageService;
 import com.ssafy.tothezip.user.model.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,7 @@ public class UserController {
 
     private UserService userService;
     private final JWTUtil jwtUtil;
+    private final ProfileImageService profileImageService;
 
     // 회원가입 (이메일 인증 여부 확인)
     @PostMapping("/regist")
@@ -44,10 +47,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        // 3. 회원가입 진행
+        // 3. 프로필 이미지 경로 검증
+        if (userDto.getProfileImg() != null && !userDto.getProfileImg().isBlank()) {
+            if (!userDto.getProfileImg().startsWith("/uploads/")) {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+        // 4. 회원가입 진행
         userService.regist(userDto);
 
-        // 4. 사용 후 세션 인증 정보 정리(선택)
+        // 5. 사용 후 세션 인증 정보 정리(선택)
         session.removeAttribute("emailVerificationCode");
         session.removeAttribute("emailVerificationEmail");
         session.removeAttribute("emailVerified");
@@ -110,6 +120,22 @@ public class UserController {
 
         return ResponseEntity.ok(result);   // true = 인증성공, false = 실패
     }
+
+    @PostMapping("/profile/upload")
+    public ResponseEntity<ProfileUploadResponseDto> uploadProfile(
+            @RequestPart("file") MultipartFile file,
+            HttpSession session
+    ) {
+        // 이메일 인증된 세션만 업로드 허용 (스토리지 악용 방지)
+        Boolean verified = (Boolean) session.getAttribute("emailVerified");
+        if (verified == null || !verified) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        String url = profileImageService.uploadProfileImage(file);
+        return ResponseEntity.ok(new ProfileUploadResponseDto(url));
+    }
+
 
     // 로그인 + JWT 토큰 발급
     @PostMapping("/login")

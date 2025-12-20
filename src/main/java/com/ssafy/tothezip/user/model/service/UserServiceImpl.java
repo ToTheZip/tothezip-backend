@@ -18,6 +18,7 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
     private UserMapper userMapper;
+    private final MailUtil mailUtil;
 
     @Override
     public void regist(UserDto userDto) {
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
         String verifyCode = String.valueOf(new Random().nextInt(900_000) + 100_000);
 
         // 메일 발송 (전에 쓰던 MailUtil 그대로 사용한다고 가정)
-        MailUtil.sendVerificationCode(email, verifyCode);
+        mailUtil.sendVerificationCode(email, verifyCode);
 
         return verifyCode;
     }
