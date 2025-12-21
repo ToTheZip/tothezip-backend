@@ -47,7 +47,7 @@ public class NoticeServiceImpl implements NoticeService {
         String bs = baseSort(sort);
         // 페이징용
         int p = Math.max(page, 1); // page
-        int size = 20; // size
+        int size = 15; // size
         int offset = (p-1)*size; // offset
 
         List<NoticeDto.Summary> pinned = noticeMapper.getPinned(btf);
@@ -71,7 +71,7 @@ public class NoticeServiceImpl implements NoticeService {
         String btf = baseTypeFilter(typeFilter);
         String bs = baseSort(sort);
         // 메인에 요약으로 띄우는거라 페이징 x
-        int size = 5; // size
+        int size = 4; // size
 
         List<NoticeDto.Summary> pinned = noticeMapper.getPinned(btf);
         List<NoticeDto.Summary> notices = noticeMapper.getNotices(btf, bs, size, 0);
