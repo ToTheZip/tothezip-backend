@@ -5,10 +5,13 @@ import com.ssafy.tothezip.security.JWTUtil;
 import com.ssafy.tothezip.user.model.*;
 import com.ssafy.tothezip.user.model.service.ProfileImageService;
 import com.ssafy.tothezip.user.model.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -139,7 +142,7 @@ public class UserController {
 
     // 로그인 + JWT 토큰 발급
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody UserDto loginRequest) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody UserDto loginRequest, HttpServletResponse response) {
         log.debug("login email: {}", loginRequest.getEmail());
 
         UserDto loginUser =
@@ -155,12 +158,76 @@ public class UserController {
         String accessToken = jwtUtil.createAccessToken(loginUser);
         String refreshToken = jwtUtil.createRefreshToken(loginUser);
 
-        LoginResponseDto body = new LoginResponseDto(accessToken, refreshToken, loginUser);
+        // refreshToken -> HttpOnly Cookie
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", refreshToken)
+                .httpOnly(true)
+                .secure(false)        // 로컬은 false, https 배포 시 true
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(60 * 60 * 24 * 14) // 14일
+                .build();
 
-        return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + accessToken)
-                .body(body);
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        return ResponseEntity.ok(new LoginResponseDto(accessToken, loginUser));
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(
+            @CookieValue(value = "refresh_token", required = false) String refreshToken
+    ) {
+        try {
+            if (refreshToken == null || refreshToken.isBlank()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "REFRESH_TOKEN_MISSING"));
+            }
+
+            // ✅ 토큰 검증(만료/서명/타입)
+            if (!jwtUtil.validateRefreshToken(refreshToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "REFRESH_TOKEN_INVALID"));
+            }
+
+            // ✅ refreshToken에서 userId/email만 꺼내기
+            int userId = jwtUtil.getUserIdFromRefresh(refreshToken);
+
+            // ✅ DB에서 사용자 정보 다시 조회해서 userName 확보
+            UserDto user = userService.getInfo(userId);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "USER_NOT_FOUND"));
+            }
+            user.setPassword(null);
+
+            // ✅ 새 accessToken 발급
+            String newAccessToken = jwtUtil.createAccessToken(user);
+
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        } catch (Exception e) {
+            log.error("refresh error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "REFRESH_INTERNAL_ERROR"));
+        }
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+
+        // 쿠키 삭제: Max-Age=0 + 같은 path로 내려줘야 브라우저에서 지워짐
+        ResponseCookie deleteCookie = ResponseCookie.from("refresh_token", "")
+                .httpOnly(true)
+                .secure(false)      // 배포하면 true로
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+        return ResponseEntity.ok(Map.of("message", "LOGOUT_OK"));
+    }
+
 
     // 회원 정보 조회
     @GetMapping

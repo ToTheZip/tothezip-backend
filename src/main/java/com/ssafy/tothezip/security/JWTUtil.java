@@ -65,6 +65,27 @@ public class JWTUtil {
         );
     }
 
+    public boolean validateRefreshToken(String token) {
+        try {
+            Claims claims = getClaims(token);
+
+            // subject가 refreshToken인지 확인
+            String subject = claims.getSubject();
+            if (!"refreshToken".equals(subject)) return false;
+
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public int getUserIdFromRefresh(String refreshToken) {
+        Claims claims = getClaims(refreshToken);
+        Integer userId = claims.get("userId", Integer.class);
+        if (userId == null) throw new JwtException("NO_USER_ID");
+        return userId;
+    }
+
     // 공통 생성 로직 (슬라이드의 create 메서드)
     public String create(String subject, long expireMin, Map<String, Object> claims) {
 

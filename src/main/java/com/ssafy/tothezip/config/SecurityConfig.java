@@ -91,6 +91,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 비로그인 허용
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/logout").permitAll()
+
                         .requestMatchers(HttpMethod.GET, "/user/check-email").permitAll()
 
                         // 공지 목록 허용
