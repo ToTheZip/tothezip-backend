@@ -3,6 +3,124 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.ssafy.property.model.mapper.PropertyMapper">
+<mapper namespace="com.ssafy.tothezip.property.model.mapper.PropertyMapper">
+
+    <!--
+      ⚠️ tags / dongcodes 테이블 컬럼명 가정:
+      - tags: tag_id, type, name
+      - dongcodes: dong_code, sido_name, gugun_name
+      컬럼명이 다르면 여기만 바꿔주면 됨.
+    -->
+
+    <select id="selectTopRatedPropertiesAll" resultMap="PropertyCardMap">
+        SELECT
+        pi.apt_seq        AS aptSeq,
+        pi.apt_nm         AS aptName,
+        CONCAT(pi.road_nm, ' ', IFNULL(pi.road_bun, '')) AS roadAddress,
+        ROUND(pi.property_rating, 1) AS propertyRating,
+        img.image_url     AS imageUrl
+        FROM property_infos pi
+
+        LEFT JOIN (
+        SELECT apt_seq, MAX(image_url) AS image_url
+        FROM property_image
+        WHERE is_main = 1
+        GROUP BY apt_seq
+        ) img ON img.apt_seq = pi.apt_seq
+
+        ORDER BY pi.property_rating DESC
+        LIMIT #{limit}
+    </select>
+
+
+    <select id="selectUserRegionName" resultType="string">
+        SELECT t.name
+        FROM user_preferences_tags upt
+        JOIN tags t ON t.tag_id = upt.tag_id
+        WHERE upt.user_id = #{userId}
+        AND t.type = '지역'
+        ORDER BY upt.tag_id ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectUserFacilityNames" resultType="string">
+        SELECT t.name
+        FROM user_preferences_tags upt
+        JOIN tags t ON t.tag_id = upt.tag_id
+        WHERE upt.user_id = #{userId}
+        AND t.type = '주변시설'
+        ORDER BY upt.tag_id ASC
+    </select>
+
+    <select id="selectUserFacilityTagIds" resultType="int">
+        SELECT t.tag_id
+        FROM user_preferences_tags upt
+        JOIN tags t ON t.tag_id = upt.tag_id
+        WHERE upt.user_id = #{userId}
+        AND t.type = '주변시설'
+        ORDER BY t.tag_id ASC
+    </select>
+
+    <select id="selectSggCdBySidoGugun" resultType="string">
+        SELECT DISTINCT SUBSTRING(dong_code, 1, 5) AS sgg_cd
+        FROM dongcodes
+        WHERE sido_name = #{sido}
+        AND gugun_name = #{gugun}
+        LIMIT 1
+    </select>
+
+    <resultMap id="PropertyCardMap" type="com.ssafy.tothezip.property.model.PropertyCardDto">
+        <id property="aptSeq" column="aptSeq"/>
+        <result property="aptName" column="aptName"/>
+        <result property="roadAddress" column="roadAddress"/>
+        <result property="propertyRating" column="propertyRating"/>
+        <result property="imageUrl" column="imageUrl"/>
+        <collection property="tags"
+                    ofType="string"
+                    column="aptSeq"
+                    select="selectPropertyTagNames"/>
+    </resultMap>
+
+    <select id="selectTopRatedProperties" resultMap="PropertyCardMap">
+        SELECT DISTINCT
+        pi.apt_seq        AS aptSeq,
+        pi.apt_nm         AS aptName,
+        CONCAT(pi.road_nm, ' ', IFNULL(pi.road_bun, '')) AS roadAddress,
+        ROUND(pi.property_rating, 1) AS propertyRating,
+        img.image_url     AS imageUrl
+        FROM property_infos pi
+
+        LEFT JOIN (
+        SELECT apt_seq, MAX(image_url) AS image_url
+        FROM property_image
+        WHERE is_main = 1
+        GROUP BY apt_seq
+        ) img ON img.apt_seq = pi.apt_seq
+
+        <if test="facilityTagIds != null and facilityTagIds.size > 0">
+            JOIN property_preferences_tags ppt
+            ON ppt.apt_seq = pi.apt_seq
+        </if>
+
+        WHERE pi.sgg_cd = #{sggCd}
+
+        <if test="facilityTagIds != null and facilityTagIds.size > 0">
+            AND ppt.tag_id IN
+            <foreach collection="facilityTagIds" item="tid" open="(" close=")" separator=",">
+                #{tid}
+            </foreach>
+        </if>
+
+        ORDER BY pi.property_rating DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectPropertyTagNames" resultType="string">
+        SELECT t.name
+        FROM property_preferences_tags ppt
+        JOIN tags t ON t.tag_id = ppt.tag_id
+        WHERE ppt.apt_seq = #{aptSeq}
+        ORDER BY t.tag_id ASC
+    </select>
 
 </mapper>

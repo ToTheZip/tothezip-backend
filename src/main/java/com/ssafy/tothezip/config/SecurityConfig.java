@@ -105,6 +105,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/notice/*").authenticated()
 
                         .requestMatchers("/admin/**").authenticated()
+
+                        // 잠만
+                        .requestMatchers("/property/recommendations").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 // 필터 체인 순서
