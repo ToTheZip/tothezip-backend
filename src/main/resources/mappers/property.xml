@@ -28,7 +28,7 @@
         GROUP BY apt_seq
         ) img ON img.apt_seq = pi.apt_seq
 
-        ORDER BY pi.property_rating DESC
+        ORDER BY propertyRating DESC
         LIMIT #{limit}
     </select>
 
@@ -81,8 +81,41 @@
                     select="selectPropertyTagNames"/>
     </resultMap>
 
+<!--    <select id="selectTopRatedProperties" resultMap="PropertyCardMap">-->
+<!--        SELECT DISTINCT-->
+<!--        pi.apt_seq        AS aptSeq,-->
+<!--        pi.apt_nm         AS aptName,-->
+<!--        CONCAT(pi.road_nm, ' ', IFNULL(pi.road_bun, '')) AS roadAddress,-->
+<!--        ROUND(pi.property_rating, 1) AS propertyRating,-->
+<!--        img.image_url     AS imageUrl-->
+<!--        FROM property_infos pi-->
+
+<!--        LEFT JOIN (-->
+<!--        SELECT apt_seq, MAX(image_url) AS image_url-->
+<!--        FROM property_image-->
+<!--        WHERE is_main = 1-->
+<!--        GROUP BY apt_seq-->
+<!--        ) img ON img.apt_seq = pi.apt_seq-->
+
+<!--        <if test="facilityTagIds != null and facilityTagIds.size > 0">-->
+<!--            JOIN property_preferences_tags ppt-->
+<!--            ON ppt.apt_seq = pi.apt_seq-->
+<!--        </if>-->
+
+<!--        WHERE pi.sgg_cd = #{sggCd}-->
+
+<!--        <if test="facilityTagIds != null and facilityTagIds.size > 0">-->
+<!--            AND ppt.tag_id IN-->
+<!--            <foreach collection="facilityTagIds" item="tid" open="(" close=")" separator=",">-->
+<!--                #{tid}-->
+<!--            </foreach>-->
+<!--        </if>-->
+
+<!--        ORDER BY pi.propertyRating DESC-->
+<!--        LIMIT #{limit}-->
+<!--    </select>-->
     <select id="selectTopRatedProperties" resultMap="PropertyCardMap">
-        SELECT DISTINCT
+        SELECT
         pi.apt_seq        AS aptSeq,
         pi.apt_nm         AS aptName,
         CONCAT(pi.road_nm, ' ', IFNULL(pi.road_bun, '')) AS roadAddress,
@@ -97,23 +130,24 @@
         GROUP BY apt_seq
         ) img ON img.apt_seq = pi.apt_seq
 
-        <if test="facilityTagIds != null and facilityTagIds.size > 0">
-            JOIN property_preferences_tags ppt
-            ON ppt.apt_seq = pi.apt_seq
-        </if>
-
         WHERE pi.sgg_cd = #{sggCd}
 
         <if test="facilityTagIds != null and facilityTagIds.size > 0">
+            AND EXISTS (
+            SELECT 1
+            FROM property_preferences_tags ppt
+            WHERE ppt.apt_seq = pi.apt_seq
             AND ppt.tag_id IN
             <foreach collection="facilityTagIds" item="tid" open="(" close=")" separator=",">
                 #{tid}
             </foreach>
+            )
         </if>
 
-        ORDER BY pi.property_rating DESC
+        ORDER BY property_rating DESC
         LIMIT #{limit}
     </select>
+
 
     <select id="selectPropertyTagNames" resultType="string">
         SELECT t.name
