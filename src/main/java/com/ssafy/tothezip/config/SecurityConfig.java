@@ -99,7 +99,8 @@ public class SecurityConfig {
                         // 지역 선택 패널 API 허용 (시군구, 읍면동..)
                         .requestMatchers(HttpMethod.GET, "/regions/**").permitAll()
                         // 아파트명 자동완성 검색 API 허용
-                        .requestMatchers(HttpMethod.GET, "/property/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/property/autocomplete").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/property/search").permitAll()
 
                         // 공지 목록 허용
                         .requestMatchers(HttpMethod.GET, "/notice").permitAll()
