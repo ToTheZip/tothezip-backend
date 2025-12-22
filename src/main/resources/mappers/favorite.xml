@@ -23,4 +23,12 @@
         AND type = #{type}
         AND reference_id = #{referenceId}
     </delete>
+
+    <select id="findReferenceIds" resultType="int">
+        SELECT reference_id
+        FROM favorites
+        WHERE user_id = #{userId}
+        AND type = #{type}
+    </select>
+
 </mapper>

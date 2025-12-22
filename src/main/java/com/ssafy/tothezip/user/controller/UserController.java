@@ -32,7 +32,7 @@ public class UserController {
 
     // 회원가입 (이메일 인증 여부 확인)
     @PostMapping("/regist")
-    public ResponseEntity<Void> regist(@RequestBody UserDto userDto,
+    public ResponseEntity<Map<String, Integer>> regist(@RequestBody UserDto userDto,
                                        HttpSession session) {
         log.debug("regist user: {}", userDto);
 
@@ -58,14 +58,16 @@ public class UserController {
         }
 
         // 4. 회원가입 진행
-        userService.regist(userDto);
+        UserDto user = userService.regist(userDto);
 
         // 5. 사용 후 세션 인증 정보 정리(선택)
         session.removeAttribute("emailVerificationCode");
         session.removeAttribute("emailVerificationEmail");
         session.removeAttribute("emailVerified");
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+//        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("userId", user.getUserId()));
     }
 
     // 이메일 중복 확인
@@ -92,6 +94,7 @@ public class UserController {
 
         // 2. 인증코드 생성 + 메일 발송
         String code = userService.sendEmailCode(email);
+        System.out.println(code);
 
         // 3. 세션에 코드와 이메일 저장
         session.setAttribute("emailVerificationCode", code);

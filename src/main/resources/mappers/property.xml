@@ -132,6 +132,24 @@
 
         WHERE pi.sgg_cd = #{sggCd}
 
+        AND EXISTS (
+            SELECT 1
+            FROM properties p
+            LEFT JOIN preferences pref
+            ON pref.user_id = #{userId}
+            WHERE p.apt_seq = pi.apt_seq
+
+            <!-- 층수 조건 -->
+            <if test="hasPreference">
+                AND (pref.min_floor IS NULL OR p.floor &gt;= pref.min_floor)
+                AND (pref.max_floor IS NULL OR p.floor &lt;= pref.max_floor)
+
+                <!-- 평수 조건 -->
+                AND (pref.min_area IS NULL OR p.area &gt;= pref.min_area)
+                AND (pref.max_area IS NULL OR p.area &lt;= pref.max_area)
+            </if>
+        )
+
         <if test="facilityTagIds != null and facilityTagIds.size > 0">
             AND EXISTS (
             SELECT 1
@@ -192,5 +210,32 @@
         LIMIT #{limit}
     </select>
 
+    <!-- 시/도 -->
+    <select id="selectDistinctSido" resultType="string">
+        SELECT DISTINCT sido_name
+        FROM dongcodes
+        ORDER BY sido_name
+    </select>
+
+    <!-- 구/군 -->
+    <select id="selectGugunBySido" resultType="string">
+        SELECT DISTINCT gugun_name
+        FROM dongcodes
+        WHERE sido_name = #{sido}
+        AND gugun_name IS NOT NULL
+        ORDER BY gugun_name
+    </select>
+
+    <!-- 태그 -->
+    <select id="selectTags" resultType="com.ssafy.tothezip.property.model.TagDto">
+        SELECT tag_id, type, name
+        FROM tags
+        <where>
+            <if test="type != null">
+                type = #{type}
+            </if>
+        </where>
+        ORDER BY tag_id
+    </select>
 
 </mapper>

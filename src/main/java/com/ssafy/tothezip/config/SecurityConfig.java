@@ -115,6 +115,15 @@ public class SecurityConfig {
                         .requestMatchers("/property/recommendations").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET,
+                                "/property/regions/sido",
+                                "/property/regions/gugun",
+                                "/property/tags"
+                        ).permitAll()
+
+                        .requestMatchers("/favorite/**").authenticated()
+
+
                         .anyRequest().authenticated()
                 )
                 // 필터 체인 순서

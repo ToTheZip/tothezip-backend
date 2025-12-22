@@ -2,8 +2,11 @@ package com.ssafy.tothezip.favorite.model.service;
 
 import com.ssafy.tothezip.favorite.model.mapper.FavoriteMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -19,7 +22,10 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Override
     @Transactional
     public boolean like(Integer userId, String type, Integer referenceId) {
-        favoriteMapper.like(userId, type, referenceId);
+        try {
+            favoriteMapper.like(userId, type, referenceId);
+        } catch (DuplicateKeyException e) {
+        }
         return true;
     }
 
@@ -28,5 +34,10 @@ public class FavoriteServiceImpl implements FavoriteService {
     public boolean dislike(Integer userId, String type, Integer referenceId) {
         favoriteMapper.dislike(userId, type, referenceId);
         return false;
+    }
+
+    @Override
+    public List<Integer> getFavoriteReferenceIds(Integer userId, String type) {
+        return favoriteMapper.findReferenceIds(userId, type);
     }
 }

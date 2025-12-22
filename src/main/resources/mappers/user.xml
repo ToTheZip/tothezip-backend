@@ -14,10 +14,6 @@
     </resultMap>
 
     <resultMap id="PreferenceResultMap" type="PreferenceDto">
-        <!-- 가격 범위 -->
-        <result column="min_price" property="minPrice"/>
-        <result column="max_price" property="maxPrice"/>
-
         <!-- 평수 범위 -->
         <result column="min_area"  property="minArea"/>
         <result column="max_area"  property="maxArea"/>
@@ -109,23 +105,50 @@
 
     <!-- 희망 가격, 평수 저장 -->
     <insert id="savePreferenceRange">
-        INSERT INTO preferences (user_id, min_price, max_price, min_area, max_area)
-        VALUES (#{userId}, #{pref.minPrice}, #{pref.maxPrice}, #{pref.minArea}, #{pref.maxArea})
+        INSERT INTO preferences (user_id, min_area, max_area)
+        VALUES (#{userId}, #{pref.minArea}, #{pref.maxArea})
         ON DUPLICATE KEY UPDATE
-        min_price = VALUES(min_price),
-        max_price = VALUES(max_price),
         min_area  = VALUES(min_area),
         max_area  = VALUES(max_area)
     </insert>
 
-    <!-- 희망 가격, 평수 조회 -->
+    <!-- 희망 평수 조회 -->
     <!-- tagIds가 null로 리턴되는데, resultmap으로 안하고 min_price as minPrice로 바꾸면 됨. -->
     <select id="getPreferenceRange"
             parameterType="int"
             resultMap="PreferenceResultMap">
         SELECT
-        min_price, max_price, min_area, max_area
+        min_area, max_area
         FROM preferences
         WHERE user_id = #{userId}
     </select>
+
+    <!-- 지역 태그 찾기 -->
+    <select id="findRegionTagId" resultType="int">
+        SELECT tag_id
+        FROM tags
+        WHERE type = '지역'
+        AND name = CONCAT(#{sido}, ' ', #{gugun})
+        LIMIT 1
+    </select>
+
+    <delete id="deleteUserTags">
+        DELETE FROM user_preferences_tags
+        WHERE user_id = #{userId}
+    </delete>
+
+    <insert id="insertUserTag">
+        INSERT INTO user_preferences_tags (user_id, tag_id)
+        VALUES (#{userId}, #{tagId})
+    </insert>
+
+    <insert id="saveAreaRange">
+        INSERT INTO preferences (user_id, min_area, max_area, min_floor, max_floor)
+        VALUES (#{userId}, #{minArea}, #{maxArea}, #{minFloor}, #{maxFloor})
+        ON DUPLICATE KEY UPDATE
+        min_area = #{minArea},
+        max_area = #{maxArea},
+        min_floor = #{minFloor},
+        max_floor = #{maxFloor}
+    </insert>
 </mapper>

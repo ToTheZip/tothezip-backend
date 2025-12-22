@@ -2,6 +2,8 @@ package com.ssafy.tothezip.property.model.mapper;
 
 import com.ssafy.tothezip.property.model.PropertyCardDto;
 import com.ssafy.tothezip.property.model.PropertySearchDto;
+import com.ssafy.tothezip.property.model.RegionDto;
+import com.ssafy.tothezip.property.model.TagDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -25,7 +27,9 @@ public interface PropertyMapper {
 
     List<PropertyCardDto> selectTopRatedProperties(@Param("sggCd") String sggCd,
                                                    @Param("facilityTagIds") List<Integer> facilityTagIds,
-                                                   @Param("limit") int limit);
+                                                   @Param("limit") int limit,
+                                                   @Param("userId") Integer userId,
+                                                   @Param("hasPreference") boolean hasPreference);
 
     List<String> selectPropertyTagNames(@Param("aptSeq") String aptSeq);
 
@@ -37,4 +41,12 @@ public interface PropertyMapper {
             @Param("sggCdList") List<String> sggCdList, // 시도만 선택 시(선택)
             @Param("limit") int limit
     );
+    // 지역
+    List<String> selectDistinctSido();
+
+    List<String> selectGugunBySido(String sido);
+
+    // 태그
+    List<TagDto> selectTags(@Param("type") String type);
+
 }
