@@ -16,4 +16,8 @@ public class PreferenceDto {
     private Integer minArea;
     private Integer maxArea;
 
+    // 희망 층수 범위
+    private Integer minFloor;
+    private Integer maxFloor;
+
 }

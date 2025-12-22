@@ -25,7 +25,9 @@ public interface PropertyMapper {
 
     List<PropertyCardDto> selectTopRatedProperties(@Param("sggCd") String sggCd,
                                                    @Param("facilityTagIds") List<Integer> facilityTagIds,
-                                                   @Param("limit") int limit);
+                                                   @Param("limit") int limit,
+                                                   @Param("userId") Integer userId,
+                                                   @Param("hasPreference") boolean hasPreference);
 
     List<String> selectPropertyTagNames(@Param("aptSeq") String aptSeq);
 

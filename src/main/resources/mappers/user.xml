@@ -143,10 +143,12 @@
     </insert>
 
     <insert id="saveAreaRange">
-        INSERT INTO preferences (user_id, min_area, max_area)
-        VALUES (#{userId}, #{minArea}, #{maxArea})
+        INSERT INTO preferences (user_id, min_area, max_area, min_floor, max_floor)
+        VALUES (#{userId}, #{minArea}, #{maxArea}, #{minFloor}, #{maxFloor})
         ON DUPLICATE KEY UPDATE
         min_area = #{minArea},
-        max_area = #{maxArea}
+        max_area = #{maxArea},
+        min_floor = #{minFloor},
+        max_floor = #{maxFloor}
     </insert>
 </mapper>

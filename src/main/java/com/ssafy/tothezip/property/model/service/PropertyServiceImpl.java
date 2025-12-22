@@ -74,8 +74,9 @@ public class PropertyServiceImpl implements PropertyService {
         // =========================
         // 3️⃣ 정상 회원 추천
         // =========================
+        boolean hasPreference = (userId != null);
         List<PropertyCardDto> cards =
-                propertyMapper.selectTopRatedProperties(sggCd, facilityTagIds, 10);
+                propertyMapper.selectTopRatedProperties(sggCd, facilityTagIds, 10, userId, hasPreference);
 
         PropertyDto.RecommendationsProperty res =
                 new PropertyDto.RecommendationsProperty();

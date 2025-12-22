@@ -132,6 +132,24 @@
 
         WHERE pi.sgg_cd = #{sggCd}
 
+        AND EXISTS (
+            SELECT 1
+            FROM properties p
+            LEFT JOIN preferences pref
+            ON pref.user_id = #{userId}
+            WHERE p.apt_seq = pi.apt_seq
+
+            <!-- 층수 조건 -->
+            <if test="hasPreference">
+                AND (pref.min_floor IS NULL OR p.floor &gt;= pref.min_floor)
+                AND (pref.max_floor IS NULL OR p.floor &lt;= pref.max_floor)
+
+                <!-- 평수 조건 -->
+                AND (pref.min_area IS NULL OR p.area &gt;= pref.min_area)
+                AND (pref.max_area IS NULL OR p.area &lt;= pref.max_area)
+            </if>
+        )
+
         <if test="facilityTagIds != null and facilityTagIds.size > 0">
             AND EXISTS (
             SELECT 1
