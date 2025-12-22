@@ -157,4 +157,32 @@
         ORDER BY t.tag_id ASC
     </select>
 
+    <!-- 시/도 -->
+    <select id="selectDistinctSido" resultType="string">
+        SELECT DISTINCT sido_name
+        FROM dongcodes
+        ORDER BY sido_name
+    </select>
+
+    <!-- 구/군 -->
+    <select id="selectGugunBySido" resultType="string">
+        SELECT DISTINCT gugun_name
+        FROM dongcodes
+        WHERE sido_name = #{sido}
+        AND gugun_name IS NOT NULL
+        ORDER BY gugun_name
+    </select>
+
+    <!-- 태그 -->
+    <select id="selectTags" resultType="com.ssafy.tothezip.property.model.TagDto">
+        SELECT tag_id, type, name
+        FROM tags
+        <where>
+            <if test="type != null">
+                type = #{type}
+            </if>
+        </where>
+        ORDER BY tag_id
+    </select>
+
 </mapper>

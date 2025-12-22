@@ -2,6 +2,8 @@ package com.ssafy.tothezip.property.model.service;
 
 import com.ssafy.tothezip.property.model.PropertyCardDto;
 import com.ssafy.tothezip.property.model.PropertyDto;
+import com.ssafy.tothezip.property.model.RegionDto;
+import com.ssafy.tothezip.property.model.TagDto;
 import com.ssafy.tothezip.property.model.mapper.PropertyMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -87,6 +89,21 @@ public class PropertyServiceImpl implements PropertyService {
         );
 
         return res;
+    }
+
+    @Override
+    public List<String> getSidoList() {
+        return propertyMapper.selectDistinctSido();
+    }
+
+    @Override
+    public List<String> getGugunList(String sido) {
+        return propertyMapper.selectGugunBySido(sido);
+    }
+
+    @Override
+    public List<TagDto> getTagList(String type) {
+        return propertyMapper.selectTags(type);
     }
 
     /** 예: "서울특별시 종로구" -> ["서울특별시", "종로구"] */
