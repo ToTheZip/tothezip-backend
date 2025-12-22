@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserService {
 
     // 회원 가입
-    void regist(UserDto userDto);
+    UserDto regist(UserDto userDto);
 
     // email 중복 확인
     boolean emailDuplicate(String email);
@@ -29,12 +29,12 @@ public interface UserService {
     // 회원 탈퇴
     void delete(int userId);
 
-    // 관심태그 및 희망 가격, 평수 저장
+    // 관심태그 및 희망 평수 저장
     void savePreferences(int userId, PreferenceDto preferenceDto);
 
     // 관심태그 조회
     List<Integer> getPreferences(int userId);
 
-    // 희망 가격, 평수 조회
+    // 희망 평수 조회
     PreferenceDto getPreferenceRange(int userId);
 }

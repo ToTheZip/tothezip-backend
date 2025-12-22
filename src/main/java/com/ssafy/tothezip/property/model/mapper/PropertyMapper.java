@@ -1,6 +1,8 @@
 package com.ssafy.tothezip.property.model.mapper;
 
 import com.ssafy.tothezip.property.model.PropertyCardDto;
+import com.ssafy.tothezip.property.model.RegionDto;
+import com.ssafy.tothezip.property.model.TagDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
@@ -26,4 +28,13 @@ public interface PropertyMapper {
                                                    @Param("limit") int limit);
 
     List<String> selectPropertyTagNames(@Param("aptSeq") String aptSeq);
+
+    // 지역
+    List<String> selectDistinctSido();
+
+    List<String> selectGugunBySido(String sido);
+
+    // 태그
+    List<TagDto> selectTags(@Param("type") String type);
+
 }

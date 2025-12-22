@@ -21,12 +21,13 @@ public class UserServiceImpl implements UserService {
     private final MailUtil mailUtil;
 
     @Override
-    public void regist(UserDto userDto) {
+    public UserDto regist(UserDto userDto) {
         String rawPassword = userDto.getPassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
         userDto.setPassword(encodedPassword);
 
         userMapper.regist(userDto);
+        return userDto;
     }
 
     @Override
@@ -102,15 +103,42 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void savePreferences(int userId, PreferenceDto preferenceDto) {
 
-        userMapper.savePreferenceRange(userId, preferenceDto);
+//        userMapper.savePreferenceRange(userId, preferenceDto);
+//
+//        userMapper.deleteUserPreferences(userId);
+//
+//        if (preferenceDto != null &&
+//                preferenceDto.getTagIds() != null &&
+//                !preferenceDto.getTagIds().isEmpty()) {
+//            userMapper.insertUserPreferences(userId, preferenceDto.getTagIds());
+//        }
+        // 지역 → tag_id 변환
+        Integer regionTagId = userMapper.findRegionTagId(
+                preferenceDto.getSido(),
+                preferenceDto.getGugun()
+        );
 
-        userMapper.deleteUserPreferences(userId);
+        // 기존 태그 삭제
+        userMapper.deleteUserTags(userId);
 
-        if (preferenceDto != null &&
-                preferenceDto.getTagIds() != null &&
-                !preferenceDto.getTagIds().isEmpty()) {
-            userMapper.insertUserPreferences(userId, preferenceDto.getTagIds());
+        // 주변시설 태그 저장
+        if (preferenceDto.getTagIds() != null) {
+            for (Integer tagId : preferenceDto.getTagIds()) {
+                userMapper.insertUserTag(userId, tagId);
+            }
         }
+
+        // 지역 태그 저장 (1개만)
+        if (regionTagId != null) {
+            userMapper.insertUserTag(userId, regionTagId);
+        }
+
+        // 희망 평수 저장
+        userMapper.saveAreaRange(
+                userId,
+                preferenceDto.getMinArea(),
+                preferenceDto.getMaxArea()
+        );
     }
 
     @Override
