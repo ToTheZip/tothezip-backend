@@ -2,7 +2,6 @@ package com.ssafy.tothezip.property.model.mapper;
 
 import com.ssafy.tothezip.property.model.PropertyCardDto;
 import com.ssafy.tothezip.property.model.PropertySearchDto;
-import com.ssafy.tothezip.property.model.RegionDto;
 import com.ssafy.tothezip.property.model.TagDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -33,7 +32,7 @@ public interface PropertyMapper {
 
     List<String> selectPropertyTagNames(@Param("aptSeq") String aptSeq);
 
-    // 검색할 때 아파트 이름 받아오기 위함
+    // 검색할 때 아파트 이름 받아오기 위함 (자동완성 기능)
     List<PropertySearchDto.AptItem> searchApartments(
             @Param("query") String query,
             @Param("dongCode") String dongCode,     // 10자리(선택)
@@ -41,6 +40,16 @@ public interface PropertyMapper {
             @Param("sggCdList") List<String> sggCdList, // 시도만 선택 시(선택)
             @Param("limit") int limit
     );
+
+    // 실제 매물 검색 버튼 눌렀을 때
+    List<PropertySearchDto.BuildingCard> searchBuildings(
+            @Param("req") PropertySearchDto.SearchRequest req,
+            @Param("dongCode") String dongCode,
+            @Param("sggCd") String sggCd,
+            @Param("sggCdList") List<String> sggCdList,
+            @Param("facilityTagIds") List<Integer> facilityTagIds
+    );
+
     // 지역
     List<String> selectDistinctSido();
 
@@ -48,5 +57,4 @@ public interface PropertyMapper {
 
     // 태그
     List<TagDto> selectTags(@Param("type") String type);
-
 }

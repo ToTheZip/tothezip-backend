@@ -210,6 +210,176 @@
         LIMIT #{limit}
     </select>
 
+    <select id="searchBuildings" resultMap="BuildingCardMap">
+        SELECT
+        pi.apt_seq AS aptSeq,
+        pi.apt_nm AS aptName,
+        CONCAT(pi.road_nm,' ',IFNULL(pi.road_bun,'')) AS roadAddress,
+        pi.latitude AS latitude,
+        pi.longitude AS longitude,
+        pi.build_year AS buildYear,
+        ROUND(pi.property_rating, 1) AS propertyRating,
+        img.image_url AS imageUrl,
+
+        mp.type    AS minDealType,
+        mp.price   AS minPrice,
+        mp.deposit AS minDeposit
+
+        FROM property_infos pi
+
+        LEFT JOIN (
+        SELECT apt_seq, MAX(image_url) AS image_url
+        FROM property_image
+        WHERE is_main = 1
+        GROUP BY apt_seq
+        ) img ON img.apt_seq = pi.apt_seq
+
+        JOIN (
+        SELECT apt_seq, type, price, deposit
+        FROM (
+        SELECT
+        p.*,
+        ROW_NUMBER() OVER(
+        PARTITION BY p.apt_seq
+        ORDER BY
+        CASE
+        WHEN p.type = '월세'
+        THEN IFNULL(p.deposit,0) * 1000000 + IFNULL(p.price,0)
+        ELSE
+        IFNULL(p.price,0) * 1000000
+        END ASC
+        ) AS rn
+        FROM properties p
+        WHERE 1=1
+
+        <!-- 거래 유형 -->
+        <if test="req.dealType != null and req.dealType.size() > 0">
+            AND p.type IN
+            <foreach collection="req.dealType" item="t" open="(" close=")" separator=",">
+                #{t}
+            </foreach>
+        </if>
+
+        <!-- 면적/층 -->
+        <if test="req.areaMin != null">
+            AND p.area <![CDATA[ >= ]]> #{req.areaMin}
+        </if>
+        <if test="req.areaMax != null">
+            AND p.area <![CDATA[ <= ]]> #{req.areaMax}
+        </if>
+        <if test="req.floorMin != null">
+            AND p.floor <![CDATA[ >= ]]> #{req.floorMin}
+        </if>
+        <if test="req.floorMax != null">
+            AND p.floor <![CDATA[ <= ]]> #{req.floorMax}
+        </if>
+
+        <!-- 가격 (type별 분기) -->
+        <if test="req.dealType != null and req.dealType.size() > 0">
+            AND (
+            (p.type = '월세'
+            <if test="req.depositMin != null"> AND IFNULL(p.deposit,0) <![CDATA[ >= ]]> #{req.depositMin}</if>
+            <if test="req.depositMax != null"> AND IFNULL(p.deposit,0) <![CDATA[ <= ]]> #{req.depositMax}</if>
+            <if test="req.monthlyRentMin != null"> AND IFNULL(p.price,0) <![CDATA[ >= ]]> #{req.monthlyRentMin}</if>
+            <if test="req.monthlyRentMax != null"> AND IFNULL(p.price,0) <![CDATA[ <= ]]> #{req.monthlyRentMax}</if>
+            )
+            OR
+            (p.type = '전세'
+            <if test="req.jeonseMin != null"> AND IFNULL(p.price,0) <![CDATA[ >= ]]> #{req.jeonseMin}</if>
+            <if test="req.jeonseMax != null"> AND IFNULL(p.price,0) <![CDATA[ <= ]]> #{req.jeonseMax}</if>
+            )
+            OR
+            (p.type = '매매'
+            <if test="req.buyMin != null"> AND IFNULL(p.price,0) <![CDATA[ >= ]]> #{req.buyMin}</if>
+            <if test="req.buyMax != null"> AND IFNULL(p.price,0) <![CDATA[ <= ]]> #{req.buyMax}</if>
+            )
+            )
+        </if>
+        ) t
+        WHERE rn = 1
+        ) mp ON mp.apt_seq = pi.apt_seq
+
+        WHERE 1=1
+
+        <!-- 지역 필터 -->
+        <choose>
+            <when test="dongCode != null and dongCode != ''">
+                AND CONCAT(pi.sgg_cd, pi.umd_cd) = #{dongCode}
+            </when>
+            <when test="sggCd != null and sggCd != ''">
+                AND pi.sgg_cd = #{sggCd}
+            </when>
+            <when test="sggCdList != null and sggCdList.size() > 0">
+                AND pi.sgg_cd IN
+                <foreach collection="sggCdList" item="cd" open="(" close=")" separator=",">
+                    #{cd}
+                </foreach>
+            </when>
+        </choose>
+
+        <!-- 아파트명(정확 선택: aptSeq / 부분검색: aptName) -->
+        <if test="req.aptSeq != null and req.aptSeq != ''">
+            AND pi.apt_seq = #{req.aptSeq}
+        </if>
+        <if test="(req.aptSeq == null or req.aptSeq == '') and (req.aptName != null and req.aptName != '')">
+            AND pi.apt_nm LIKE CONCAT('%', #{req.aptName}, '%')
+        </if>
+
+        <!-- 건물 조건(준공/평점) -->
+        <if test="req.buildYearMin != null">
+            AND pi.build_year <![CDATA[ >= ]]> #{req.buildYearMin}
+        </if>
+        <if test="req.buildYearMax != null">
+            AND pi.build_year <![CDATA[ <= ]]> #{req.buildYearMax}
+        </if>
+        <if test="req.ratingMin != null">
+            AND pi.property_rating <![CDATA[ >= ]]> #{req.ratingMin}
+        </if>
+        <if test="req.ratingMax != null">
+            AND pi.property_rating <![CDATA[ <= ]]> #{req.ratingMax}
+        </if>
+
+        <!-- 주변시설 태그 -->
+        <if test="facilityTagIds != null and facilityTagIds.size() > 0">
+            AND EXISTS (
+            SELECT 1
+            FROM property_preferences_tags ppt
+            WHERE ppt.apt_seq = pi.apt_seq
+            AND ppt.tag_id IN
+            <foreach collection="facilityTagIds" item="tid" open="(" close=")" separator=",">
+                #{tid}
+            </foreach>
+            )
+        </if>
+
+        ORDER BY pi.property_rating DESC, pi.apt_nm ASC
+        LIMIT #{req.limit} OFFSET #{req.offset}
+    </select>
+
+
+    <resultMap id="BuildingCardMap" type="com.ssafy.tothezip.property.model.PropertySearchDto$BuildingCard">
+        <id property="aptSeq" column="aptSeq"/>
+        <result property="aptName" column="aptName"/>
+        <result property="roadAddress" column="roadAddress"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <result property="buildYear" column="buildYear"/>
+        <result property="propertyRating" column="propertyRating"/>
+        <result property="imageUrl" column="imageUrl"/>
+        <result property="minDealType" column="minDealType"/>
+        <result property="minPrice" column="minPrice"/>
+        <result property="minDeposit" column="minDeposit"/>
+        <collection property="tags" ofType="string" column="aptSeq" select="selectPropertyTagNames"/>
+        <collection property="images" ofType="string" column="aptSeq" select="selectPropertyImages"/>
+    </resultMap>
+
+    <select id="selectPropertyImages" resultType="string">
+        SELECT image_url
+        FROM property_image
+        WHERE apt_seq = #{aptSeq}
+        ORDER BY is_main DESC, id ASC
+    </select>
+
     <!-- 시/도 -->
     <select id="selectDistinctSido" resultType="string">
         SELECT DISTINCT sido_name

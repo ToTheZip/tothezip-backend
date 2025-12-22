@@ -14,8 +14,15 @@ public class PropertySearchController {
 
     private final PropertySearchService propertySearchService;
 
-    @GetMapping("/search")
-    public List<PropertySearchDto.AptItem> search(
+    @PostMapping("/search")
+    public List<PropertySearchDto.BuildingCard> search(
+            @RequestBody PropertySearchDto.SearchRequest req
+    ) {
+        return propertySearchService.searchBuildings(req);
+    }
+
+    @GetMapping("/autocomplete")
+    public List<PropertySearchDto.AptItem> searchAutoComplete(
             @RequestParam String query,
             @RequestParam(required = false) String sido,
             @RequestParam(required = false) String gugun,
