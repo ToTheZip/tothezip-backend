@@ -116,6 +116,9 @@ public class SecurityConfig {
                                 "/property/tags"
                         ).permitAll()
 
+                        .requestMatchers("/favorite/**").authenticated()
+
+
                         .anyRequest().authenticated()
                 )
                 // 필터 체인 순서

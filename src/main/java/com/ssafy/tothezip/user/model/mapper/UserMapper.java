@@ -51,5 +51,5 @@ public interface UserMapper {
 
     void insertUserTag(@Param("userId") int userId, @Param("tagId") int tagId);
 
-    void saveAreaRange(@Param("userId") int userId, @Param("minArea") Integer minArea, @Param("maxArea") Integer maxArea);
+    void saveAreaRange(@Param("userId") int userId, @Param("minArea") Integer minArea, @Param("maxArea") Integer maxArea, @Param("minFloor") Integer minFloor, @Param("maxFloor") Integer maxFloor);
 }

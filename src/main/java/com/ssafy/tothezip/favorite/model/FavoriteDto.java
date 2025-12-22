@@ -6,6 +6,6 @@ import lombok.Data;
 public class FavoriteDto {
 
     private String type;
-    private Integer referenceId;
+    private int referenceId;
 
 }

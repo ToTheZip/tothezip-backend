@@ -133,11 +133,13 @@ public class UserServiceImpl implements UserService {
             userMapper.insertUserTag(userId, regionTagId);
         }
 
-        // 희망 평수 저장
+        // 희망 평수, 층수 저장
         userMapper.saveAreaRange(
                 userId,
                 preferenceDto.getMinArea(),
-                preferenceDto.getMaxArea()
+                preferenceDto.getMaxArea(),
+                preferenceDto.getMinFloor(),
+                preferenceDto.getMaxFloor()
         );
     }
 
