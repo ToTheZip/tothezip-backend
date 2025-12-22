@@ -76,4 +76,18 @@ public class PropertySearchDto {
         private String aptSeq;
         private String aptName;
     }
+
+    @Data
+    public static class ListingItem {
+        private Integer propertyId;
+        private String aptSeq;
+
+        private String type;           // ENUM: 월세/전세/매매
+        private String price;          // VARCHAR
+        private String deposit;        // VARCHAR (월세만)
+
+        private Double area;
+        private Integer floor;
+    }
+
 }
