@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.tothezip.region.model.mapper.RegionMapper">
+
+    <select id="selectSidos" resultType="string">
+        SELECT DISTINCT sido_name
+        FROM dongcodes
+        WHERE sido_name IS NOT NULL
+        ORDER BY sido_name
+    </select>
+
+    <select id="selectGuguns" resultType="string">
+        SELECT DISTINCT gugun_name
+        FROM dongcodes
+        WHERE sido_name = #{sido}
+        AND gugun_name IS NOT NULL
+        ORDER BY gugun_name
+    </select>
+
+    <select id="selectDongs" resultType="com.ssafy.tothezip.region.model.RegionDto$Dong">
+        SELECT dong_code AS dongCode,
+        dong_name AS dongName
+        FROM dongcodes
+        WHERE sido_name = #{sido}
+        AND gugun_name = #{gugun}
+        AND dong_name IS NOT NULL
+        ORDER BY dong_name
+    </select>
+
+    <select id="selectSggCdBySidoGugun" resultType="string">
+        SELECT DISTINCT SUBSTRING(dong_code, 1, 5)
+        FROM dongcodes
+        WHERE sido_name = #{sido}
+        AND gugun_name = #{gugun}
+        LIMIT 1
+    </select>
+
+    <select id="selectSggCdsBySido" resultType="string">
+        SELECT DISTINCT SUBSTRING(dong_code, 1, 5)
+        FROM dongcodes
+        WHERE sido_name = #{sido}
+        AND gugun_name IS NOT NULL
+        ORDER BY SUBSTRING(dong_code, 1, 5)
+    </select>
+
+    <select id="selectDongCode" resultType="string">
+        SELECT dong_code
+        FROM dongcodes
+        WHERE sido_name = #{sido}
+        AND gugun_name = #{gugun}
+        AND dong_name = #{dong}
+        LIMIT 1
+    </select>
+
+</mapper>

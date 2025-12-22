@@ -11,4 +11,6 @@ public class PropertyCardDto {
     private Double propertyRating;
     private List<String> tags;
     private String imageUrl;
+
+    private boolean isLiked = false;
 }
