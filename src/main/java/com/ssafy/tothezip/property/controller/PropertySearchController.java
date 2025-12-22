@@ -30,4 +30,12 @@ public class PropertySearchController {
     ) {
         return propertySearchService.search(query, sido, gugun, dong);
     }
+
+    @GetMapping("/{aptSeq}/listings")
+    public List<PropertySearchDto.ListingItem> listings(
+            @PathVariable String aptSeq
+    ) {
+        return propertySearchService.getListingsByAptSeq(aptSeq);
+    }
+
 }

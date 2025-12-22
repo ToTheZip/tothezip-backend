@@ -10,5 +10,7 @@ public interface PropertySearchService {
 
     // 검색 결과 가져오기
     List<PropertySearchDto.BuildingCard> searchBuildings(PropertySearchDto.SearchRequest req);
+
+    List<PropertySearchDto.ListingItem> getListingsByAptSeq(String aptSeq);
 }
 

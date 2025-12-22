@@ -57,4 +57,9 @@ public interface PropertyMapper {
 
     // 태그
     List<TagDto> selectTags(@Param("type") String type);
+
+    List<PropertySearchDto.ListingItem> selectListingsByAptSeq(
+            @Param("aptSeq") String aptSeq
+    );
+
 }

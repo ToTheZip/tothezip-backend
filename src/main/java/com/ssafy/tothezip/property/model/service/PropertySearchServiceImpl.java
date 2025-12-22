@@ -73,4 +73,8 @@ public class PropertySearchServiceImpl implements PropertySearchService {
         return propertyMapper.searchBuildings(req, dongCode, sggCd, sggCdList, facilityTagIds);
     }
 
+    public List<PropertySearchDto.ListingItem> getListingsByAptSeq(String aptSeq) {
+        return propertyMapper.selectListingsByAptSeq(aptSeq);
+    }
+
 }

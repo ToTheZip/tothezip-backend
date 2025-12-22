@@ -408,4 +408,32 @@
         ORDER BY tag_id
     </select>
 
+    <select id="selectListingsByAptSeq"
+            resultType="com.ssafy.tothezip.property.model.PropertySearchDto$ListingItem">
+        SELECT
+        p.property_id AS propertyId,
+        p.apt_seq     AS aptSeq,
+        p.type        AS type,
+        p.price       AS price,
+        p.deposit     AS deposit,
+        p.area        AS area,
+        p.floor       AS floor
+        FROM properties p
+        WHERE p.apt_seq = #{aptSeq}
+        ORDER BY
+        CASE p.type
+        WHEN '월세' THEN 1
+        WHEN '전세' THEN 2
+        WHEN '매매' THEN 3
+        ELSE 99
+        END,
+        CASE
+        WHEN p.type = '월세'
+        THEN CAST(IFNULL(p.deposit,'0') AS UNSIGNED) * 1000000
+        + CAST(IFNULL(p.price,'0') AS UNSIGNED)
+        ELSE CAST(IFNULL(p.price,'0') AS UNSIGNED) * 1000000
+        END ASC,
+        p.property_id DESC
+    </select>
+
 </mapper>

@@ -102,6 +102,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/property/autocomplete").permitAll()
                         .requestMatchers(HttpMethod.POST, "/property/search").permitAll()
 
+                        // 매물 리스트 불러오기 허용
+                        .requestMatchers(HttpMethod.GET, "/property/*/listings").permitAll()
+
                         // 공지 목록 허용
                         .requestMatchers(HttpMethod.GET, "/notice").permitAll()
                         .requestMatchers(HttpMethod.GET, "/notice/main").permitAll()
