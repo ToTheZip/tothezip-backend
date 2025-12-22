@@ -175,6 +175,41 @@
         ORDER BY t.tag_id ASC
     </select>
 
+    <select id="searchApartments" resultType="com.ssafy.tothezip.property.model.PropertySearchDto$AptItem">
+        SELECT
+        pi.apt_seq AS aptSeq,
+        pi.apt_nm  AS aptName
+        FROM property_infos pi
+        WHERE pi.apt_nm LIKE CONCAT('%', #{query}, '%')
+
+        <choose>
+            <!-- 동까지 선택된 경우: 10자리 정확 매칭 -->
+            <when test="dongCode != null and dongCode != ''">
+                AND CONCAT(pi.sgg_cd, pi.umd_cd) = #{dongCode}
+            </when>
+
+            <!-- 구군까지만 선택된 경우 -->
+            <when test="sggCd != null and sggCd != ''">
+                AND pi.sgg_cd = #{sggCd}
+            </when>
+
+            <!-- 시도까지만 선택된 경우 -->
+            <when test="sggCdList != null and sggCdList.size() > 0">
+                AND pi.sgg_cd IN
+                <foreach collection="sggCdList" item="cd" open="(" close=")" separator=",">
+                    #{cd}
+                </foreach>
+            </when>
+
+            <!-- 지역 미선택: 필터 없음 -->
+            <otherwise>
+            </otherwise>
+        </choose>
+
+        ORDER BY pi.property_rating DESC, pi.apt_nm ASC
+        LIMIT #{limit}
+    </select>
+
     <!-- 시/도 -->
     <select id="selectDistinctSido" resultType="string">
         SELECT DISTINCT sido_name

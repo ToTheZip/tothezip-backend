@@ -1,10 +1,12 @@
 package com.ssafy.tothezip.property.model.mapper;
 
 import com.ssafy.tothezip.property.model.PropertyCardDto;
+import com.ssafy.tothezip.property.model.PropertySearchDto;
 import com.ssafy.tothezip.property.model.RegionDto;
 import com.ssafy.tothezip.property.model.TagDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 @Mapper
@@ -31,6 +33,14 @@ public interface PropertyMapper {
 
     List<String> selectPropertyTagNames(@Param("aptSeq") String aptSeq);
 
+    // 검색할 때 아파트 이름 받아오기 위함
+    List<PropertySearchDto.AptItem> searchApartments(
+            @Param("query") String query,
+            @Param("dongCode") String dongCode,     // 10자리(선택)
+            @Param("sggCd") String sggCd,           // 5자리(선택)
+            @Param("sggCdList") List<String> sggCdList, // 시도만 선택 시(선택)
+            @Param("limit") int limit
+    );
     // 지역
     List<String> selectDistinctSido();
 
