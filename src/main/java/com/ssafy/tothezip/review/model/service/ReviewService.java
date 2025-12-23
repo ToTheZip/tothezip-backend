@@ -11,4 +11,7 @@ public interface ReviewService {
      * @param offset 시작 위치
      */
     ReviewDto.ReviewListResponse getReviews(String aptSeq, int limit, int offset);
+
+    Integer createReview(int userId, ReviewDto.ReviewCreateRequest req);
+
 }

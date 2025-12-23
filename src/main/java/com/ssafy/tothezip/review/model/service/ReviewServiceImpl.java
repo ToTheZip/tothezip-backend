@@ -34,4 +34,23 @@ public class ReviewServiceImpl implements ReviewService {
 
         return res;
     }
+
+    @Override
+    public Integer createReview(int userId, ReviewDto.ReviewCreateRequest req) {
+        if (req.getAptSeq() == null || req.getAptSeq().isBlank()) {
+            throw new IllegalArgumentException("aptSeq is required");
+        }
+        if (req.getReviewContent() == null || req.getReviewContent().isBlank()) {
+            throw new IllegalArgumentException("reviewContent is required");
+        }
+        int rating = (req.getReviewRating() == null) ? 0 : req.getReviewRating();
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("reviewRating must be 1~5");
+        }
+
+        reviewMapper.insertReview(req.getAptSeq(), userId, req.getReviewContent(), rating);
+        return reviewMapper.selectLastInsertId(); // MySQL LAST_INSERT_ID()
+    }
+
+
 }

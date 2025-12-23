@@ -16,4 +16,15 @@ public interface ReviewMapper {
             @Param("limit") int limit,
             @Param("offset") int offset
     );
+
+    int insertReview(
+            @Param("aptSeq") String aptSeq,
+            @Param("userId") int userId,
+            @Param("reviewContent") String reviewContent,
+            @Param("reviewRating") int reviewRating
+    );
+
+    Integer selectLastInsertId();
+
+
 }

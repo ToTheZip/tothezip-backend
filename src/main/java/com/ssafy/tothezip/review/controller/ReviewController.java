@@ -2,7 +2,9 @@ package com.ssafy.tothezip.review.controller;
 
 import com.ssafy.tothezip.review.model.ReviewDto;
 import com.ssafy.tothezip.review.model.service.ReviewService;
+import com.ssafy.tothezip.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,4 +22,18 @@ public class ReviewController {
     ) {
         return reviewService.getReviews(aptSeq, limit, offset);
     }
+
+    @PostMapping("/{aptSeq}")
+    public ReviewDto.ReviewCreateResponse createReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody ReviewDto.ReviewCreateRequest req
+    ) {
+        int userId = userDetails.getUser().getUserId();
+        Integer id = reviewService.createReview(userId, req);
+        ReviewDto.ReviewCreateResponse res = new ReviewDto.ReviewCreateResponse();
+        res.setReviewId(id);
+        return res;
+    }
+
+
 }
