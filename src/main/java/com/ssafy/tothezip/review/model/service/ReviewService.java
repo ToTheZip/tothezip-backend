@@ -14,4 +14,7 @@ public interface ReviewService {
 
     Integer createReview(int userId, ReviewDto.ReviewCreateRequest req);
 
+    void updateReview(int userId, int reviewId, ReviewDto.ReviewUpdateRequest req);
+    void deleteReview(int userId, int reviewId);
+
 }
