@@ -23,7 +23,7 @@ public class ReviewController {
         return reviewService.getReviews(aptSeq, limit, offset);
     }
 
-    @PostMapping("/{aptSeq}")
+    @PostMapping
     public ReviewDto.ReviewCreateResponse createReview(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReviewDto.ReviewCreateRequest req
