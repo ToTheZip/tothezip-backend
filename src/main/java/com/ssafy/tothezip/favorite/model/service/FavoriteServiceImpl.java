@@ -40,4 +40,10 @@ public class FavoriteServiceImpl implements FavoriteService {
     public List<Integer> getFavoriteReferenceIds(Integer userId, String type) {
         return favoriteMapper.findReferenceIds(userId, type);
     }
+
+    @Override
+    public List<String> getFavoriteAptSeqs(Integer userId, String type) {
+        return favoriteMapper.findAptSeqsByFavoriteProperty(userId, type);
+    }
+
 }

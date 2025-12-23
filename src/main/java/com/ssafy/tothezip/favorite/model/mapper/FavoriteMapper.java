@@ -24,4 +24,8 @@ public interface FavoriteMapper {
             @Param("userId") Integer userId,
             @Param("type") String type
     );
+
+    List<String> findAptSeqsByFavoriteProperty(@Param("userId") Integer userId,
+                                                @Param("type") String type);
+
 }

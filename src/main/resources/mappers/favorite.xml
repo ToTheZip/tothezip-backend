@@ -31,4 +31,12 @@
         AND type = #{type}
     </select>
 
+    <select id="findAptSeqsByFavoriteProperty" resultType="string">
+        SELECT DISTINCT p.apt_seq
+        FROM favorites f
+        JOIN properties p ON p.property_id = f.reference_id
+        WHERE f.user_id = #{userId}
+        AND f.type = #{type}
+    </select>
+
 </mapper>
