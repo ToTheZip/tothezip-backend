@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/user")
@@ -30,11 +31,35 @@ public class UserController {
     private final JWTUtil jwtUtil;
     private final ProfileImageService profileImageService;
 
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^\\w\\s]).{8,20}$");
+
+    private boolean isValidEmail(String email) {
+        return email != null && EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    private boolean isValidPassword(String pw) {
+        return pw != null && PASSWORD_PATTERN.matcher(pw).matches();
+    }
+
+
     // 회원가입 (이메일 인증 여부 확인)
     @PostMapping("/regist")
     public ResponseEntity<Map<String, Integer>> regist(@RequestBody UserDto userDto,
                                        HttpSession session) {
         log.debug("regist user: {}", userDto);
+
+        if (!isValidEmail(userDto.getEmail())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", 4001));
+        }
+        if (!isValidPassword(userDto.getPassword())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", 4002));
+        }
 
         // 1. 이메일 중복 체크
         if (userService.emailDuplicate(userDto.getEmail())) {
