@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.tothezip.review.model.mapper.ReviewMapper">
+
+    <!-- 리뷰 개수 -->
+    <select id="countReviewsByAptSeq" resultType="int">
+        SELECT COUNT(*)
+        FROM reviews r
+        WHERE r.apt_seq = #{aptSeq}
+    </select>
+
+    <!-- 리뷰 목록 -->
+    <select id="selectReviewsByAptSeq"
+            resultType="com.ssafy.tothezip.review.model.ReviewDto$ReviewItem">
+        SELECT
+        r.review_id      AS reviewId,
+        r.apt_seq        AS aptSeq,
+        r.user_id        AS userId,
+        u.profile_img    AS profileImg,
+        r.review_content AS reviewContent,
+        r.review_rating  AS reviewRating,
+        r.review_date    AS reviewDate
+        FROM reviews r
+        JOIN users u ON u.user_id = r.user_id
+        WHERE r.apt_seq = #{aptSeq}
+        ORDER BY r.review_date DESC, r.review_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>
