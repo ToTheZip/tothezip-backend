@@ -107,6 +107,8 @@ public class SecurityConfig {
 
                         // 리뷰 조회 허용
                         .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
+                        // 리뷰 작성은 로그인 필요
+                        .requestMatchers(HttpMethod.POST, "/reviews/**").authenticated()
 
                         // 공지 목록 허용
                         .requestMatchers(HttpMethod.GET, "/notice").permitAll()

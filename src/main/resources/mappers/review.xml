@@ -30,4 +30,13 @@
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
+    <insert id="insertReview">
+        INSERT INTO reviews (apt_seq, user_id, review_content, review_rating, review_date)
+        VALUES (#{aptSeq}, #{userId}, #{reviewContent}, #{reviewRating}, NOW())
+    </insert>
+
+    <select id="selectLastInsertId" resultType="int">
+        SELECT LAST_INSERT_ID()
+    </select>
+
 </mapper>

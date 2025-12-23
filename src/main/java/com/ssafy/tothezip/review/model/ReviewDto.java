@@ -24,4 +24,16 @@ public class ReviewDto {
         private boolean hasMore;
         private java.util.List<ReviewItem> reviews;
     }
+
+    @Data
+    public static class ReviewCreateRequest {
+        private String aptSeq;
+        private String reviewContent;
+        private Integer reviewRating; // 1~5
+    }
+
+    @Data
+    public static class ReviewCreateResponse {
+        private Integer reviewId;
+    }
 }
