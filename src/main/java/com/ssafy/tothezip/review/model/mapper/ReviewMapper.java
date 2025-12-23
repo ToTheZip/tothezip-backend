@@ -26,5 +26,16 @@ public interface ReviewMapper {
 
     Integer selectLastInsertId();
 
+    Integer selectReviewOwnerUserId(@Param("reviewId") int reviewId);
+
+    int updateReview(
+            @Param("reviewId") int reviewId,
+            @Param("reviewContent") String reviewContent,
+            @Param("reviewRating") int reviewRating
+    );
+
+    int deleteReview(@Param("reviewId") int reviewId);
+
+    ReviewDto.ReviewStats selectReviewStatsByAptSeq(@Param("aptSeq") String aptSeq);
 
 }

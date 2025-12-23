@@ -39,4 +39,36 @@
         SELECT LAST_INSERT_ID()
     </select>
 
+    <select id="selectReviewOwnerUserId" resultType="int">
+        SELECT user_id
+        FROM reviews
+        WHERE review_id = #{reviewId}
+    </select>
+
+    <update id="updateReview">
+        UPDATE reviews
+        SET review_content = #{reviewContent},
+        review_rating = #{reviewRating}
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <delete id="deleteReview">
+        DELETE FROM reviews
+        WHERE review_id = #{reviewId}
+    </delete>
+
+    <select id="selectReviewStatsByAptSeq"
+            resultType="com.ssafy.tothezip.review.model.ReviewDto$ReviewStats">
+        SELECT
+        IFNULL(AVG(r.review_rating), 0) AS avgRating,
+        SUM(CASE WHEN r.review_rating = 1 THEN 1 ELSE 0 END) AS count1,
+        SUM(CASE WHEN r.review_rating = 2 THEN 1 ELSE 0 END) AS count2,
+        SUM(CASE WHEN r.review_rating = 3 THEN 1 ELSE 0 END) AS count3,
+        SUM(CASE WHEN r.review_rating = 4 THEN 1 ELSE 0 END) AS count4,
+        SUM(CASE WHEN r.review_rating = 5 THEN 1 ELSE 0 END) AS count5
+        FROM reviews r
+        WHERE r.apt_seq = #{aptSeq}
+    </select>
+
+
 </mapper>

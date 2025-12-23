@@ -32,6 +32,16 @@ public class ReviewServiceImpl implements ReviewService {
         res.setReviews(list);
         res.setHasMore(safeOffset + list.size() < total);
 
+        ReviewDto.ReviewStats stats = reviewMapper.selectReviewStatsByAptSeq(aptSeq);
+
+        res.setAvgRating(stats.getAvgRating());
+        res.setCount1(stats.getCount1());
+        res.setCount2(stats.getCount2());
+        res.setCount3(stats.getCount3());
+        res.setCount4(stats.getCount4());
+        res.setCount5(stats.getCount5());
+
+
         return res;
     }
 
@@ -52,5 +62,28 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.selectLastInsertId(); // MySQL LAST_INSERT_ID()
     }
 
+    @Override
+    public void updateReview(int userId, int reviewId, ReviewDto.ReviewUpdateRequest req) {
+        Integer owner = reviewMapper.selectReviewOwnerUserId(reviewId);
+        if (owner == null) throw new IllegalArgumentException("review not found");
+        if (owner != userId) throw new SecurityException("forbidden");
+
+        String content = (req.getReviewContent() == null) ? "" : req.getReviewContent().trim();
+        if (content.isBlank()) throw new IllegalArgumentException("reviewContent is required");
+
+        int rating = (req.getReviewRating() == null) ? 0 : req.getReviewRating();
+        if (rating < 1 || rating > 5) throw new IllegalArgumentException("reviewRating must be 1~5");
+
+        reviewMapper.updateReview(reviewId, content, rating);
+    }
+
+    @Override
+    public void deleteReview(int userId, int reviewId) {
+        Integer owner = reviewMapper.selectReviewOwnerUserId(reviewId);
+        if (owner == null) throw new IllegalArgumentException("review not found");
+        if (owner != userId) throw new SecurityException("forbidden");
+
+        reviewMapper.deleteReview(reviewId);
+    }
 
 }

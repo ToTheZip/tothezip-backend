@@ -35,5 +35,23 @@ public class ReviewController {
         return res;
     }
 
+    @PutMapping("/{reviewId}")
+    public void updateReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable int reviewId,
+            @RequestBody ReviewDto.ReviewUpdateRequest req
+    ) {
+        int userId = userDetails.getUser().getUserId();
+        reviewService.updateReview(userId, reviewId, req);
+    }
+
+    @DeleteMapping("/{reviewId}")
+    public void deleteReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable int reviewId
+    ) {
+        int userId = userDetails.getUser().getUserId();
+        reviewService.deleteReview(userId, reviewId);
+    }
 
 }
