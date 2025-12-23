@@ -56,4 +56,13 @@ public class FavoriteController {
         return favoriteService.getFavoriteReferenceIds(userId, type);
     }
 
+    @GetMapping("/aptseq")
+    public List<String> getFavoriteAptSeqs(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam String type) {
+
+        Integer userId = userDetails.getUser().getUserId();
+        return favoriteService.getFavoriteAptSeqs(userId, type);
+    }
+
 }
