@@ -105,6 +105,9 @@ public class SecurityConfig {
                         // 매물 리스트 불러오기 허용
                         .requestMatchers(HttpMethod.GET, "/property/*/listings").permitAll()
 
+                        // 리뷰 조회 허용
+                        .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
+
                         // 공지 목록 허용
                         .requestMatchers(HttpMethod.GET, "/notice").permitAll()
                         .requestMatchers(HttpMethod.GET, "/notice/main").permitAll()
