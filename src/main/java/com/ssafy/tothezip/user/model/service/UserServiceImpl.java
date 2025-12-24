@@ -1,5 +1,6 @@
 package com.ssafy.tothezip.user.model.service;
 
+import com.ssafy.tothezip.favorite.model.mapper.FavoriteMapper;
 import com.ssafy.tothezip.user.model.PreferenceDto;
 import com.ssafy.tothezip.user.model.UserDto;
 import com.ssafy.tothezip.user.model.mapper.UserMapper;
@@ -18,6 +19,7 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
     private UserMapper userMapper;
+    private FavoriteMapper favoriteMapper;
     private final MailUtil mailUtil;
 
     @Override
@@ -96,6 +98,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(int userId) {
+
+//        favoriteMapper.delete
+//        userMapper.deleteUserTags(userId);
         userMapper.delete(userId);
     }
 
@@ -140,6 +145,37 @@ public class UserServiceImpl implements UserService {
                 preferenceDto.getMaxArea(),
                 preferenceDto.getMinFloor(),
                 preferenceDto.getMaxFloor()
+        );
+    }
+
+    @Transactional
+    @Override
+    public void updatePreferences(int userId, PreferenceDto pref) {
+
+        // 기존 관심 태그 전부 삭제
+        userMapper.deleteUserTags(userId);
+
+        // 지역 태그 처리 (sido + gugun → tag_id)
+        if (pref.getSido() != null && pref.getGugun() != null) {
+            Integer regionTagId =
+                    userMapper.findRegionTagId(pref.getSido(), pref.getGugun());
+            if (regionTagId != null) {
+                userMapper.insertUserTag(userId, regionTagId);
+            }
+        }
+
+        // 시설 태그 처리
+        if (pref.getTagIds() != null && !pref.getTagIds().isEmpty()) {
+            userMapper.insertUserPreferences(userId, pref.getTagIds());
+        }
+
+        // 희망 층 / 평수 upsert
+        userMapper.saveAreaRange(
+                userId,
+                pref.getMinArea(),
+                pref.getMaxArea(),
+                pref.getMinFloor(),
+                pref.getMaxFloor()
         );
     }
 

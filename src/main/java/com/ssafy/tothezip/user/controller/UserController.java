@@ -210,16 +210,16 @@ public class UserController {
                         .body(Map.of("message", "REFRESH_TOKEN_MISSING"));
             }
 
-            // ✅ 토큰 검증(만료/서명/타입)
+            // 토큰 검증(만료/서명/타입)
             if (!jwtUtil.validateRefreshToken(refreshToken)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("message", "REFRESH_TOKEN_INVALID"));
             }
 
-            // ✅ refreshToken에서 userId/email만 꺼내기
+            // refreshToken에서 userId/email만 꺼내기
             int userId = jwtUtil.getUserIdFromRefresh(refreshToken);
 
-            // ✅ DB에서 사용자 정보 다시 조회해서 userName 확보
+            // DB에서 사용자 정보 다시 조회해서 userName 확보
             UserDto user = userService.getInfo(userId);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -227,7 +227,7 @@ public class UserController {
             }
             user.setPassword(null);
 
-            // ✅ 새 accessToken 발급
+            // 새 accessToken 발급
             String newAccessToken = jwtUtil.createAccessToken(user);
 
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
@@ -292,6 +292,18 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    // 관심사항 변경
+    @PutMapping("/preferences")
+    public ResponseEntity<Void> updatePreferences(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody PreferenceDto preferenceDto
+    ) {
+        int userId = userDetails.getUser().getUserId();
+        userService.updatePreferences(userId, preferenceDto);
+        return ResponseEntity.ok().build();
+    }
+
+
     // 회원 탈퇴
     @DeleteMapping
     public ResponseEntity<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -323,7 +335,7 @@ public class UserController {
         return ResponseEntity.ok(tagIds);
     }
 
-    // 사용자 희망 가격, 평수 조회
+    // 사용자 희망 층수, 평수 조회
     @GetMapping("/preferences/range")
     public ResponseEntity<PreferenceDto> getPreferencesRange(@AuthenticationPrincipal CustomUserDetails userDetails) {
 

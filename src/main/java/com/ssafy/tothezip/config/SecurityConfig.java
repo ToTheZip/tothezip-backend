@@ -134,6 +134,15 @@ public class SecurityConfig {
                                 "/property/regions/gugun",
                                 "/property/tags"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/property/tags/resolve").permitAll()
+
+                        // 관심사항 수정
+                        .requestMatchers(HttpMethod.GET,
+                                "/user/preferences/tags",
+                                "/user/preferences/range"
+                        ).authenticated()
+
+                        .requestMatchers(HttpMethod.PUT, "/user/preferences").authenticated()
 
                         .requestMatchers("/favorite/**").authenticated()
 

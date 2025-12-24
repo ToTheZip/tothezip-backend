@@ -32,6 +32,8 @@ public interface UserService {
     // 관심태그 및 희망 평수 저장
     void savePreferences(int userId, PreferenceDto preferenceDto);
 
+    void updatePreferences(int userId, PreferenceDto pref);
+
     // 관심태그 조회
     List<Integer> getPreferences(int userId);
 

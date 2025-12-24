@@ -14,6 +14,9 @@
     </resultMap>
 
     <resultMap id="PreferenceResultMap" type="PreferenceDto">
+        <!-- 층수 범위 -->
+        <result column="min_floor"  property="minFloor"/>
+        <result column="max_floor"  property="maxFloor"/>
         <!-- 평수 범위 -->
         <result column="min_area"  property="minArea"/>
         <result column="max_area"  property="maxArea"/>
@@ -80,7 +83,12 @@
     </delete>
 
     <!-- 사용자 관심 태그 전부 삭제 -->
-    <delete id="deleteUserPreferences" parameterType="int">
+<!--    <delete id="deleteUserPreferences" parameterType="int">-->
+<!--        DELETE FROM user_preferences_tags-->
+<!--        WHERE user_id = #{userId}-->
+<!--    </delete>-->
+
+    <delete id="deleteUserTags">
         DELETE FROM user_preferences_tags
         WHERE user_id = #{userId}
     </delete>
@@ -105,9 +113,11 @@
 
     <!-- 희망 가격, 평수 저장 -->
     <insert id="savePreferenceRange">
-        INSERT INTO preferences (user_id, min_area, max_area)
-        VALUES (#{userId}, #{pref.minArea}, #{pref.maxArea})
+        INSERT INTO preferences (user_id, min_floor, max_floor, min_area, max_area)
+        VALUES (#{userId}, #{pref.minFloor}, #{pref.maxFloor}, #{pref.minArea}, #{pref.maxArea})
         ON DUPLICATE KEY UPDATE
+        min_floor  = VALUES(min_floor),
+        max_floor  = VALUES(max_floor),
         min_area  = VALUES(min_area),
         max_area  = VALUES(max_area)
     </insert>
@@ -118,7 +128,7 @@
             parameterType="int"
             resultMap="PreferenceResultMap">
         SELECT
-        min_area, max_area
+        min_floor, max_floor, min_area, max_area
         FROM preferences
         WHERE user_id = #{userId}
     </select>
@@ -131,11 +141,6 @@
         AND name = CONCAT(#{sido}, ' ', #{gugun})
         LIMIT 1
     </select>
-
-    <delete id="deleteUserTags">
-        DELETE FROM user_preferences_tags
-        WHERE user_id = #{userId}
-    </delete>
 
     <insert id="insertUserTag">
         INSERT INTO user_preferences_tags (user_id, tag_id)

@@ -1,9 +1,6 @@
 package com.ssafy.tothezip.property.model.service;
 
-import com.ssafy.tothezip.property.model.PriceSeriesDto;
-import com.ssafy.tothezip.property.model.PropertyCardDto;
-import com.ssafy.tothezip.property.model.PropertyDto;
-import com.ssafy.tothezip.property.model.TagDto;
+import com.ssafy.tothezip.property.model.*;
 import com.ssafy.tothezip.property.model.mapper.PropertyMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +18,7 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public PropertyDto.RecommendationsProperty getHomeRecommendations(Integer userId) {
         // =========================
-        // 1. 비회원
+        // 1️⃣ 비회원
         // =========================
         if (userId == null) {
             PropertyDto.RecommendationsProperty res =
@@ -35,7 +32,7 @@ public class PropertyServiceImpl implements PropertyService {
         }
 
         // =========================
-        // 2. 회원
+        // 2️⃣ 회원
         // =========================
         String regionName = propertyMapper.selectUserRegionName(userId);
         List<String> facilityNames = propertyMapper.selectUserFacilityNames(userId);
@@ -73,7 +70,7 @@ public class PropertyServiceImpl implements PropertyService {
         }
 
         // =========================
-        // 3. 정상 회원 추천
+        // 3️⃣ 정상 회원 추천
         // =========================
         boolean hasPreference = (userId != null);
         List<PropertyCardDto> cards =
@@ -123,6 +120,15 @@ public class PropertyServiceImpl implements PropertyService {
         String sido = sb.toString();
         return new String[]{sido, gugun};
     }
+
+    @Override
+    public List<TagDto> resolveTags(List<Integer> tagIds) {
+              if (tagIds == null || tagIds.isEmpty()) {
+                       return Collections.emptyList();
+                    }
+                return propertyMapper.selectTagsByIds(tagIds);
+            }
+
 
     @Override
     public PriceSeriesDto getPriceSeries(String aptSeq, String dealType, String period) {
