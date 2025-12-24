@@ -105,6 +105,9 @@ public class SecurityConfig {
                         // 매물 리스트 불러오기 허용
                         .requestMatchers(HttpMethod.GET, "/property/*/listings").permitAll()
 
+                        // 건물 시세 그래프를 위한 허용
+                        .requestMatchers(HttpMethod.GET, "/property/*/price-series").permitAll()
+
                         // 리뷰 조회 허용
                         .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
                         // 리뷰 작성은 로그인 필요

@@ -1,7 +1,7 @@
 package com.ssafy.tothezip.property.controller;
 
+import com.ssafy.tothezip.property.model.PriceSeriesDto;
 import com.ssafy.tothezip.property.model.PropertyDto;
-import com.ssafy.tothezip.property.model.RegionDto;
 import com.ssafy.tothezip.property.model.TagDto;
 import com.ssafy.tothezip.property.model.service.PropertyService;
 import com.ssafy.tothezip.security.CustomUserDetails;
@@ -51,5 +51,14 @@ public class PropertyController {
             @RequestParam(required = false) String type
     ) {
         return ResponseEntity.ok(propertyService.getTagList(type));
+    }
+
+    @GetMapping("/{aptSeq}/price-series")
+    public ResponseEntity<PriceSeriesDto> getPriceSeries(
+            @PathVariable String aptSeq,
+            @RequestParam(required = false) String dealType,
+            @RequestParam(required = false, defaultValue = "month") String period
+    ) {
+        return ResponseEntity.ok(propertyService.getPriceSeries(aptSeq, dealType, period));
     }
 }

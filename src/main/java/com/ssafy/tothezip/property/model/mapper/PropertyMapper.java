@@ -1,5 +1,6 @@
 package com.ssafy.tothezip.property.model.mapper;
 
+import com.ssafy.tothezip.property.model.PriceSeriesDto;
 import com.ssafy.tothezip.property.model.PropertyCardDto;
 import com.ssafy.tothezip.property.model.PropertySearchDto;
 import com.ssafy.tothezip.property.model.TagDto;
@@ -60,6 +61,18 @@ public interface PropertyMapper {
 
     List<PropertySearchDto.ListingItem> selectListingsByAptSeq(
             @Param("aptSeq") String aptSeq
+    );
+
+    List<PriceSeriesDto.Point> selectPriceSeriesMonthly(
+            @Param("aptSeq") String aptSeq,
+            @Param("dealType") String dealType,
+            @Param("fromDate") String fromDate
+    );
+
+    List<PriceSeriesDto.Point> selectPriceSeriesQuarterly(
+            @Param("aptSeq") String aptSeq,
+            @Param("dealType") String dealType,
+            @Param("fromDate") String fromDate
     );
 
 }
