@@ -408,6 +408,18 @@
         ORDER BY tag_id
     </select>
 
+    <select id="selectTagsByIds" parameterType="map"
+            resultType="com.ssafy.tothezip.property.model.TagDto">
+        SELECT
+        tag_id AS tagId,
+        name   AS name
+        FROM tags
+        WHERE tag_id IN
+        <foreach collection="tagIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="selectListingsByAptSeq"
             resultType="com.ssafy.tothezip.property.model.PropertySearchDto$ListingItem">
         SELECT

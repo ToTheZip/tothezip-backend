@@ -31,7 +31,7 @@ public interface UserMapper {
     void delete(@Param("userId") int userId);
 
     // 사용자 관심태그 전부 삭제
-    void deleteUserPreferences(@Param("userId") int userId);
+//    void deleteUserPreferences(@Param("userId") int userId);
 
     // 사용자 관심태그 여러 개 insert
     void insertUserPreferences(@Param("userId") int userId, @Param("tagIds") List<Integer> tagIds);

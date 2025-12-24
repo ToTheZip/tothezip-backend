@@ -1,8 +1,6 @@
 package com.ssafy.tothezip.property.controller;
 
-import com.ssafy.tothezip.property.model.PriceSeriesDto;
-import com.ssafy.tothezip.property.model.PropertyDto;
-import com.ssafy.tothezip.property.model.TagDto;
+import com.ssafy.tothezip.property.model.*;
 import com.ssafy.tothezip.property.model.service.PropertyService;
 import com.ssafy.tothezip.security.CustomUserDetails;
 import lombok.AllArgsConstructor;
@@ -52,6 +50,12 @@ public class PropertyController {
     ) {
         return ResponseEntity.ok(propertyService.getTagList(type));
     }
+
+    @PostMapping("/tags/resolve")
+    public ResponseEntity<List<TagDto>> resolveTags(@RequestBody TagResolveRequest req) {
+                return ResponseEntity.ok(propertyService.resolveTags(req.getTagIds()));
+            }
+
 
     @GetMapping("/{aptSeq}/price-series")
     public ResponseEntity<PriceSeriesDto> getPriceSeries(
