@@ -436,4 +436,39 @@
         p.property_id DESC
     </select>
 
+    <select id="selectPriceSeriesMonthly"
+            resultType="com.ssafy.tothezip.property.model.PriceSeriesDto$Point">
+        SELECT
+        DATE_FORMAT(
+        STR_TO_DATE(CONCAT(d.deal_year,'-',LPAD(d.deal_month,2,'0'),'-01'), '%Y-%m-%d'),
+        '%Y-%m'
+        ) AS date,
+        COUNT(*) AS count,
+
+        AVG(d.price) AS avgPrice,
+
+        CAST(
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(
+        GROUP_CONCAT(d.price ORDER BY d.price SEPARATOR ','),
+        ',',
+        FLOOR((COUNT(*) + 1) / 2)
+        ),
+        ',',
+        -1
+        ) AS UNSIGNED
+        ) AS medianPrice
+        FROM deals d
+        WHERE d.apt_seq = #{aptSeq}
+        <if test="dealType != null and dealType != ''">
+            AND d.type = #{dealType}
+        </if>
+        AND STR_TO_DATE(
+        CONCAT(d.deal_year,'-',LPAD(d.deal_month,2,'0'),'-',LPAD(d.deal_day,2,'0')),
+        '%Y-%m-%d'
+        ) <![CDATA[ >= ]]> STR_TO_DATE(#{fromDate}, '%Y-%m-%d')
+        GROUP BY date
+        ORDER BY date ASC
+    </select>
+
 </mapper>

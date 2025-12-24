@@ -1,13 +1,14 @@
 package com.ssafy.tothezip.property.model.service;
 
+import com.ssafy.tothezip.property.model.PriceSeriesDto;
 import com.ssafy.tothezip.property.model.PropertyCardDto;
 import com.ssafy.tothezip.property.model.PropertyDto;
-import com.ssafy.tothezip.property.model.RegionDto;
 import com.ssafy.tothezip.property.model.TagDto;
 import com.ssafy.tothezip.property.model.mapper.PropertyMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public PropertyDto.RecommendationsProperty getHomeRecommendations(Integer userId) {
         // =========================
-        // 1️⃣ 비회원
+        // 1. 비회원
         // =========================
         if (userId == null) {
             PropertyDto.RecommendationsProperty res =
@@ -34,7 +35,7 @@ public class PropertyServiceImpl implements PropertyService {
         }
 
         // =========================
-        // 2️⃣ 회원
+        // 2. 회원
         // =========================
         String regionName = propertyMapper.selectUserRegionName(userId);
         List<String> facilityNames = propertyMapper.selectUserFacilityNames(userId);
@@ -72,7 +73,7 @@ public class PropertyServiceImpl implements PropertyService {
         }
 
         // =========================
-        // 3️⃣ 정상 회원 추천
+        // 3. 정상 회원 추천
         // =========================
         boolean hasPreference = (userId != null);
         List<PropertyCardDto> cards =
@@ -121,5 +122,27 @@ public class PropertyServiceImpl implements PropertyService {
         }
         String sido = sb.toString();
         return new String[]{sido, gugun};
+    }
+
+    @Override
+    public PriceSeriesDto getPriceSeries(String aptSeq, String dealType, String period) {
+        String p = (period == null || period.isBlank()) ? "month" : period;
+        // 최근 5년 (오늘 기준)
+        LocalDate from = LocalDate.now().minusYears(5).withDayOfMonth(1);
+        String fromDate = from.toString(); // yyyy-MM-dd
+
+        List<PriceSeriesDto.Point> points =
+                "quarter".equalsIgnoreCase(p)
+                        ? propertyMapper.selectPriceSeriesQuarterly(aptSeq, dealType, fromDate)
+                        : propertyMapper.selectPriceSeriesMonthly(aptSeq, dealType, fromDate);
+
+        PriceSeriesDto dto = new PriceSeriesDto();
+        dto.setAptSeq(aptSeq);
+        dto.setDealType(dealType);
+        dto.setPeriod(p);
+        dto.setFrom(fromDate);
+        dto.setTo(LocalDate.now().toString());
+        dto.setPoints(points);
+        return dto;
     }
 }
