@@ -344,4 +344,15 @@ public class UserController {
         PreferenceDto range = userService.getPreferenceRange(userId);
         return ResponseEntity.ok(range);
     }
+
+    // 계약서 인증
+    @PostMapping("/certification")
+    public ResponseEntity<Void> certificateProperty(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                    @RequestParam String aptSeq){
+        int userId = userDetails.getUser().getUserId();
+System.out.println(userId);
+        System.out.println(aptSeq);
+        userService.certificateProperty(userId, aptSeq);
+        return ResponseEntity.ok().build();
+    }
 }

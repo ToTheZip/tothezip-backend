@@ -39,4 +39,7 @@ public interface UserService {
 
     // 희망 평수 조회
     PreferenceDto getPreferenceRange(int userId);
+
+    // 계약 인증
+    void certificateProperty(int userId, String aptSeq);
 }
