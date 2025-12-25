@@ -146,6 +146,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/favorite/**").authenticated()
 
+                        .requestMatchers(HttpMethod.POST, "/user/certification").permitAll()
 
                         .anyRequest().authenticated()
                 )
@@ -170,6 +171,7 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://localhost"
         ));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization","Content-Type","*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

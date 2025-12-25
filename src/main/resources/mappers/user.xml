@@ -156,4 +156,9 @@
         min_floor = #{minFloor},
         max_floor = #{maxFloor}
     </insert>
+
+    <insert id="certificateProperty">
+        INSER INTO my_properties (user_id, apt_seq)
+        VALUES (#{userId}, #{aptSeq})
+    </insert>
 </mapper>

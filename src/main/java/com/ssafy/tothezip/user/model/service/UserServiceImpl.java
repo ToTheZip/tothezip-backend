@@ -188,4 +188,7 @@ public class UserServiceImpl implements UserService {
     public PreferenceDto getPreferenceRange(int userId) {
         return userMapper.getPreferenceRange(userId);
     }
+
+    @Override
+    public void certificateProperty(int userId, String aptSeq){ userMapper.certificateProperty(userId, aptSeq); }
 }

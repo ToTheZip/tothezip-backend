@@ -71,7 +71,7 @@ public class NoticeServiceImpl implements NoticeService {
         String btf = baseTypeFilter(typeFilter);
         String bs = baseSort(sort);
         // 메인에 요약으로 띄우는거라 페이징 x
-        int size = 4; // size
+        int size = 5; // size
 
         List<NoticeDto.Summary> pinned = noticeMapper.getPinned(btf);
         List<NoticeDto.Summary> notices = noticeMapper.getNotices(btf, bs, size, 0);
