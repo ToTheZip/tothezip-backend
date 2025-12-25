@@ -16,4 +16,7 @@ public interface PropertyService {
     List<TagDto> resolveTags(List<Integer> tagIds);
 
     PriceSeriesDto getPriceSeries(String aptSeq, String dealType, String period);
+
+    List<PropertyCardDto> getPropertiesByMapBounds(
+            Double minLat, Double maxLat, Double minLng, Double maxLng);
 }

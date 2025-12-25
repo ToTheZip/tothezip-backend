@@ -12,5 +12,13 @@ public class PropertyCardDto {
     private List<String> tags;
     private String imageUrl;
 
+    private Double latitude;
+    private Double longitude;
+    private Integer buildYear;
+
+    private String minDealType;
+    private Long minPrice;
+    private Long minDeposit;
+
     private boolean isLiked = false;
 }

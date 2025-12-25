@@ -61,4 +61,16 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.getPriceSeries(aptSeq, dealType, period));
     }
 
+    // 지도 viewport 기반 매물 조회
+    @GetMapping("/map-viewport")
+    public ResponseEntity<List<PropertyCardDto>> getMapViewportProperties(
+            @RequestParam Double minLat,
+            @RequestParam Double maxLat,
+            @RequestParam Double minLng,
+            @RequestParam Double maxLng) {
+        List<PropertyCardDto> properties = propertyService.getPropertiesByMapBounds(minLat, maxLat, minLng,
+                maxLng);
+        return ResponseEntity.ok(properties);
+    }
+
 }

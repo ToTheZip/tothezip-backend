@@ -85,6 +85,12 @@
         <result property="roadAddress" column="roadAddress"/>
         <result property="propertyRating" column="propertyRating"/>
         <result property="imageUrl" column="imageUrl"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <result property="buildYear" column="buildYear"/>
+        <result property="minDealType" column="minDealType"/>
+        <result property="minPrice" column="minPrice"/>
+        <result property="minDeposit" column="minDeposit"/>
         <collection property="tags"
                     ofType="string"
                     column="aptSeq"
@@ -491,6 +497,46 @@
         ) <![CDATA[ >= ]]> STR_TO_DATE(#{fromDate}, '%Y-%m-%d')
         GROUP BY date
         ORDER BY date ASC
+    </select>
+
+    <select id="selectPropertiesByBounds" resultMap="PropertyCardMap">
+        SELECT
+            pi.apt_seq AS aptSeq,
+            pi.apt_nm AS aptName,
+            CONCAT(pi.road_nm, ' ', IFNULL(pi.road_bun, '')) AS roadAddress,
+            pi.latitude,
+            pi.longitude,
+            pi.build_year AS buildYear,
+            ROUND(pi.property_rating, 1) AS propertyRating,
+            d.minDealType,
+            d.minPrice,
+            d.minDeposit
+        FROM property_infos pi
+        LEFT JOIN (
+            SELECT
+                p.apt_seq,
+                SUBSTRING_INDEX(GROUP_CONCAT(p.type ORDER BY
+                    CASE p.type
+                        WHEN '월세' THEN 1
+                        WHEN '전세' THEN 2
+                        WHEN '매매' THEN 3
+                        ELSE 4
+                    END
+                ), ',', 1) AS minDealType,
+                MIN(CASE
+                    WHEN p.type = '월세' THEN p.price
+                    WHEN p.type = '전세' THEN p.price
+                    WHEN p.type = '매매' THEN p.price
+                END) AS minPrice,
+                MIN(CASE WHEN p.type = '월세' THEN p.deposit END) AS minDeposit
+            FROM properties p
+            GROUP BY p.apt_seq
+        ) d ON pi.apt_seq = d.apt_seq
+        WHERE pi.latitude BETWEEN #{minLat} AND #{maxLat}
+          AND pi.longitude BETWEEN #{minLng} AND #{maxLng}
+        GROUP BY pi.apt_seq, pi.apt_nm, pi.road_nm, pi.road_bun, pi.latitude, pi.longitude,
+                 pi.build_year, pi.property_rating, d.minDealType, d.minPrice, d.minDeposit
+        LIMIT #{limit}
     </select>
 
 </mapper>
