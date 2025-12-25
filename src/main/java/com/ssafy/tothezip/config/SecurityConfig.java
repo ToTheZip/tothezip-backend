@@ -105,6 +105,9 @@ public class SecurityConfig {
                         // 매물 리스트 불러오기 허용
                         .requestMatchers(HttpMethod.GET, "/property/*/listings").permitAll()
 
+                        // 비교 매물 (비회원도 가능하게)
+                        .requestMatchers(HttpMethod.GET, "/property/listings/*/comparisons").permitAll()
+
                         // 건물 시세 그래프를 위한 허용
                         .requestMatchers(HttpMethod.GET, "/property/*/price-series").permitAll()
 
