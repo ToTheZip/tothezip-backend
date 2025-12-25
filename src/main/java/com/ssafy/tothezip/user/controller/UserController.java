@@ -347,11 +347,20 @@ public class UserController {
 
     // 계약서 인증
     @PostMapping("/certification")
-    public ResponseEntity<Void> certificateProperty(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                    @RequestParam String aptSeq){
+    public ResponseEntity<Void> certificateProperty(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody Map<String, String> request  // ← JSON body로 받기
+    ) {
         int userId = userDetails.getUser().getUserId();
-System.out.println(userId);
-        System.out.println(aptSeq);
+        String aptSeq = request.get("aptSeq");
+
+        System.out.println("userId: " + userId);
+        System.out.println("aptSeq: " + aptSeq);
+
+        if (aptSeq == null || aptSeq.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         userService.certificateProperty(userId, aptSeq);
         return ResponseEntity.ok().build();
     }

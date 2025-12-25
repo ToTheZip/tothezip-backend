@@ -146,7 +146,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/favorite/**").authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/user/certification").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/certification").authenticated()
 
                         .anyRequest().authenticated()
                 )
