@@ -191,4 +191,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void certificateProperty(int userId, String aptSeq){ userMapper.certificateProperty(userId, aptSeq); }
+
+    @Override
+    public boolean checkCertification(int userId, String aptSeq){
+        return userMapper.checkCertification(userId, aptSeq);
+    }
 }

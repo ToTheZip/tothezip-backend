@@ -15,10 +15,11 @@ public interface UserService {
 
     // email 인증
     String sendEmailCode(String email);
+
     boolean verifyEmailCode(String submittedCode, String submittedEmail, String sessionCode, String sessionEmail);
 
     // 로그인
-    UserDto login(String email,String password);
+    UserDto login(String email, String password);
 
     // 회원 정보 확인
     UserDto getInfo(int userId);
@@ -42,4 +43,7 @@ public interface UserService {
 
     // 계약 인증
     void certificateProperty(int userId, String aptSeq);
+
+    // 계약 인증 여부 확인
+    boolean checkCertification(int userId, String aptSeq);
 }

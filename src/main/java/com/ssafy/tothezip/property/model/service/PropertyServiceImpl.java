@@ -17,12 +17,8 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public PropertyDto.RecommendationsProperty getHomeRecommendations(Integer userId) {
-        // =========================
-        // 1️⃣ 비회원
-        // =========================
         if (userId == null) {
-            PropertyDto.RecommendationsProperty res =
-                    new PropertyDto.RecommendationsProperty();
+            PropertyDto.RecommendationsProperty res = new PropertyDto.RecommendationsProperty();
 
             res.setRegionName("추천 매물을 준비했어요");
             res.setFacilityTags(Collections.emptyList());
@@ -31,17 +27,14 @@ public class PropertyServiceImpl implements PropertyService {
             return res;
         }
 
-        // =========================
-        // 2️⃣ 회원
-        // =========================
+        // 로그인
         String regionName = propertyMapper.selectUserRegionName(userId);
         List<String> facilityNames = propertyMapper.selectUserFacilityNames(userId);
         List<Integer> facilityTagIds = propertyMapper.selectUserFacilityTagIds(userId);
 
         // 관심 지역 없으면 → 비회원 fallback
         if (regionName == null || regionName.isBlank()) {
-            PropertyDto.RecommendationsProperty res =
-                    new PropertyDto.RecommendationsProperty();
+            PropertyDto.RecommendationsProperty res = new PropertyDto.RecommendationsProperty();
 
             res.setRegionName("추천 매물을 준비했어요");
             res.setFacilityTags(Collections.emptyList());
@@ -59,8 +52,7 @@ public class PropertyServiceImpl implements PropertyService {
 
         // sgg 코드 없으면 → fallback
         if (sggCd == null || sggCd.isBlank()) {
-            PropertyDto.RecommendationsProperty res =
-                    new PropertyDto.RecommendationsProperty();
+            PropertyDto.RecommendationsProperty res = new PropertyDto.RecommendationsProperty();
 
             res.setRegionName("추천 매물을 준비했어요");
             res.setFacilityTags(Collections.emptyList());
@@ -69,23 +61,19 @@ public class PropertyServiceImpl implements PropertyService {
             return res;
         }
 
-        // =========================
-        // 3️⃣ 정상 회원 추천
-        // =========================
         boolean hasPreference = (userId != null);
-        List<PropertyCardDto> cards =
-                propertyMapper.selectTopRatedProperties(sggCd, facilityTagIds, 10, userId, hasPreference);
+        List<PropertyCardDto> cards = propertyMapper.selectTopRatedProperties(sggCd, facilityTagIds, 10, userId,
+                hasPreference);
 
-        PropertyDto.RecommendationsProperty res =
-                new PropertyDto.RecommendationsProperty();
+        PropertyDto.RecommendationsProperty res = new PropertyDto.RecommendationsProperty();
 
         res.setRegionName("관심등록한 " + regionName + ", 추천 매물을 준비했어요");
         res.setFacilityTags(
-                facilityNames != null ? facilityNames : Collections.emptyList()
-        );
+                facilityNames != null ? facilityNames : Collections.emptyList());
+        res.setPreferences(propertyMapper.selectUserPreferences(userId)); // 추가
+
         res.setProperties(
-                cards != null ? cards : Collections.emptyList()
-        );
+                cards != null ? cards : Collections.emptyList());
 
         return res;
     }
@@ -109,26 +97,27 @@ public class PropertyServiceImpl implements PropertyService {
     private String[] splitRegion(String regionName) {
         String trimmed = regionName.trim();
         String[] parts = trimmed.split("\\s+");
-        if (parts.length == 1) return new String[]{parts[0], ""};
+        if (parts.length == 1)
+            return new String[] { parts[0], "" };
 
         String gugun = parts[parts.length - 1];
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parts.length - 1; i++) {
-            if (i > 0) sb.append(' ');
+            if (i > 0)
+                sb.append(' ');
             sb.append(parts[i]);
         }
         String sido = sb.toString();
-        return new String[]{sido, gugun};
+        return new String[] { sido, gugun };
     }
 
     @Override
     public List<TagDto> resolveTags(List<Integer> tagIds) {
-              if (tagIds == null || tagIds.isEmpty()) {
-                       return Collections.emptyList();
-                    }
-                return propertyMapper.selectTagsByIds(tagIds);
-            }
-
+        if (tagIds == null || tagIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return propertyMapper.selectTagsByIds(tagIds);
+    }
 
     @Override
     public PriceSeriesDto getPriceSeries(String aptSeq, String dealType, String period) {
@@ -137,10 +126,9 @@ public class PropertyServiceImpl implements PropertyService {
         LocalDate from = LocalDate.now().minusYears(5).withDayOfMonth(1);
         String fromDate = from.toString(); // yyyy-MM-dd
 
-        List<PriceSeriesDto.Point> points =
-                "quarter".equalsIgnoreCase(p)
-                        ? propertyMapper.selectPriceSeriesQuarterly(aptSeq, dealType, fromDate)
-                        : propertyMapper.selectPriceSeriesMonthly(aptSeq, dealType, fromDate);
+        List<PriceSeriesDto.Point> points = "quarter".equalsIgnoreCase(p)
+                ? propertyMapper.selectPriceSeriesQuarterly(aptSeq, dealType, fromDate)
+                : propertyMapper.selectPriceSeriesMonthly(aptSeq, dealType, fromDate);
 
         PriceSeriesDto dto = new PriceSeriesDto();
         dto.setAptSeq(aptSeq);

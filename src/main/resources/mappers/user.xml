@@ -161,4 +161,12 @@
         INSERT INTO my_properties (user_id, apt_seq)
         VALUES (#{userId}, #{aptSeq})
     </insert>
+
+    <!-- 계약 인증 여부 확인 -->
+    <select id="checkCertification" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM my_properties
+        WHERE user_id = #{userId}
+        AND apt_seq = #{aptSeq}
+    </select>
 </mapper>
