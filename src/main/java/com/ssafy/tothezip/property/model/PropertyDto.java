@@ -10,5 +10,6 @@ public class PropertyDto {
         private String regionName;
         private List<String> facilityTags;
         private List<PropertyCardDto> properties;
+        private PreferencesDto preferences;
     }
 }

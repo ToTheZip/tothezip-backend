@@ -18,7 +18,8 @@ public interface UserMapper {
     boolean emailDuplicate(@Param("email") String email);
 
     // 로그인
-//    UserDto login(@Param("email") String email, @Param("password") String password);
+    // UserDto login(@Param("email") String email, @Param("password") String
+    // password);
     UserDto findByEmail(@Param("email") String email);
 
     // 회원 정보 확인
@@ -31,7 +32,7 @@ public interface UserMapper {
     void delete(@Param("userId") int userId);
 
     // 사용자 관심태그 전부 삭제
-//    void deleteUserPreferences(@Param("userId") int userId);
+    // void deleteUserPreferences(@Param("userId") int userId);
 
     // 사용자 관심태그 여러 개 insert
     void insertUserPreferences(@Param("userId") int userId, @Param("tagIds") List<Integer> tagIds);
@@ -51,7 +52,11 @@ public interface UserMapper {
 
     void insertUserTag(@Param("userId") int userId, @Param("tagId") int tagId);
 
-    void saveAreaRange(@Param("userId") int userId, @Param("minArea") Integer minArea, @Param("maxArea") Integer maxArea, @Param("minFloor") Integer minFloor, @Param("maxFloor") Integer maxFloor);
+    void saveAreaRange(@Param("userId") int userId, @Param("minArea") Integer minArea,
+            @Param("maxArea") Integer maxArea, @Param("minFloor") Integer minFloor,
+            @Param("maxFloor") Integer maxFloor);
 
     void certificateProperty(@Param("userId") int userId, @Param("aptSeq") String aptSeq);
+
+    boolean checkCertification(@Param("userId") int userId, @Param("aptSeq") String aptSeq);
 }
