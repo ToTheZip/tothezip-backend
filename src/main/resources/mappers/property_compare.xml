@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.tothezip.property.model.mapper.PropertyCompareMapper">
+
+    <resultMap id="BaseListingMap" type="com.ssafy.tothezip.property.model.PropertyCompareDto$BaseListing">
+        <id column="property_id" property="propertyId"/>
+        <result column="apt_seq" property="aptSeq"/>
+        <result column="apt_nm" property="aptName"/>
+        <result column="type" property="type"/>
+        <result column="price" property="price"/>
+        <result column="deposit" property="deposit"/>
+        <result column="area" property="area"/>
+        <result column="floor" property="floor"/>
+        <result column="latitude" property="latitude"/>
+        <result column="longitude" property="longitude"/>
+    </resultMap>
+
+    <resultMap id="CandidateListingMap" type="com.ssafy.tothezip.property.model.PropertyCompareDto$CandidateListing">
+        <id column="property_id" property="propertyId"/>
+        <result column="apt_seq" property="aptSeq"/>
+        <result column="apt_nm" property="aptName"/>
+        <result column="type" property="type"/>
+        <result column="price" property="price"/>
+        <result column="deposit" property="deposit"/>
+        <result column="area" property="area"/>
+        <result column="floor" property="floor"/>
+        <result column="dist_m" property="distM"/>
+        <result column="latitude" property="latitude"/>
+        <result column="longitude" property="longitude"/>
+    </resultMap>
+
+    <select id="findBaseWithCoord" parameterType="int" resultMap="BaseListingMap">
+        SELECT
+        p.property_id,
+        p.apt_seq,
+        pi.apt_nm,
+        p.type,
+        p.price,
+        p.deposit,
+        p.area,
+        p.floor,
+        pi.latitude,
+        pi.longitude
+        FROM properties p
+        JOIN property_infos pi ON pi.apt_seq = p.apt_seq
+        WHERE p.property_id = #{propertyId}
+    </select>
+
+    <!-- 전세/매매 후보 -->
+    <select id="findCandidatesSaleJeonse" resultMap="CandidateListingMap">
+        SELECT
+        p.property_id,
+        p.apt_seq,
+        pi.apt_nm,
+        p.type,
+        p.price,
+        p.deposit,
+        p.area,
+        p.floor,
+        ST_DISTANCE_SPHERE(
+        POINT(pi.longitude, pi.latitude),
+        POINT(#{baseLng}, #{baseLat})
+        ) AS dist_m,
+        pi.latitude,
+        pi.longitude
+        FROM properties p
+        JOIN property_infos pi ON pi.apt_seq = p.apt_seq
+        WHERE p.type = #{type}
+        AND p.property_id &lt;&gt; #{propertyId}
+        AND ST_DISTANCE_SPHERE(
+        POINT(pi.longitude, pi.latitude),
+        POINT(#{baseLng}, #{baseLat})
+        ) &lt;= #{radiusM}
+        AND CAST(p.price AS UNSIGNED) BETWEEN #{priceMin} AND #{priceMax}
+        AND p.area BETWEEN #{areaMin} AND #{areaMax}
+        ORDER BY p.property_regist_date DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 월세 후보 -->
+    <select id="findCandidatesMonthly" resultMap="CandidateListingMap">
+        SELECT
+        p.property_id,
+        p.apt_seq,
+        pi.apt_nm,
+        p.type,
+        p.price,
+        p.deposit,
+        p.area,
+        p.floor,
+        ST_DISTANCE_SPHERE(
+        POINT(pi.longitude, pi.latitude),
+        POINT(#{lng}, #{lat})
+        ) AS dist_m,
+        pi.latitude,
+        pi.longitude
+        FROM properties p
+        JOIN property_infos pi ON pi.apt_seq = p.apt_seq
+        WHERE p.type = '월세'
+        AND p.property_id &lt;&gt; #{propertyId}
+        AND ST_DISTANCE_SPHERE(
+        POINT(pi.longitude, pi.latitude),
+        POINT(#{lng}, #{lat})
+        ) &lt;= #{radiusM}
+        AND CAST(p.deposit AS UNSIGNED) BETWEEN #{depMin} AND #{depMax}
+        AND CAST(p.price   AS UNSIGNED) BETWEEN #{rentMin} AND #{rentMax}
+        AND p.area BETWEEN #{areaMin} AND #{areaMax}
+        ORDER BY p.property_regist_date DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findRatingByAptSeq" resultType="double">
+        SELECT AVG(r.review_rating)
+        FROM reviews r
+        WHERE r.apt_seq = #{aptSeq}
+    </select>
+
+    <select id="findRecentPriceSeriesByAptSeq"
+            resultType="com.ssafy.tothezip.property.model.PropertyCompareDto$PricePoint">
+        SELECT
+        CONCAT(d.deal_year, '-', LPAD(d.deal_month, 2, '0'), '-', LPAD(d.deal_day, 2, '0')) AS date,
+        d.price AS amount
+        FROM deals d
+        WHERE d.apt_seq = #{aptSeq}
+        ORDER BY d.deal_year, d.deal_month, d.deal_day
+        LIMIT #{limit}
+    </select>
+
+</mapper>
