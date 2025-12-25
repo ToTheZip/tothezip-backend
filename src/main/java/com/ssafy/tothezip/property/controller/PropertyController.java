@@ -21,8 +21,7 @@ public class PropertyController {
 
     @GetMapping("/recommendations")
     public ResponseEntity<PropertyDto.RecommendationsProperty> recommendations(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer userId = (userDetails != null)
                 ? userDetails.getUser().getUserId()
                 : null;
@@ -38,31 +37,28 @@ public class PropertyController {
     // 구/군 목록
     @GetMapping("/regions/gugun")
     public ResponseEntity<List<String>> getGugunList(
-            @RequestParam String sido
-    ) {
+            @RequestParam String sido) {
         return ResponseEntity.ok(propertyService.getGugunList(sido));
     }
 
     // 태그 조회 (주변시설 등)
     @GetMapping("/tags")
     public ResponseEntity<List<TagDto>> getTags(
-            @RequestParam(required = false) String type
-    ) {
+            @RequestParam(required = false) String type) {
         return ResponseEntity.ok(propertyService.getTagList(type));
     }
 
     @PostMapping("/tags/resolve")
     public ResponseEntity<List<TagDto>> resolveTags(@RequestBody TagResolveRequest req) {
-                return ResponseEntity.ok(propertyService.resolveTags(req.getTagIds()));
-            }
-
+        return ResponseEntity.ok(propertyService.resolveTags(req.getTagIds()));
+    }
 
     @GetMapping("/{aptSeq}/price-series")
     public ResponseEntity<PriceSeriesDto> getPriceSeries(
             @PathVariable String aptSeq,
             @RequestParam(required = false) String dealType,
-            @RequestParam(required = false, defaultValue = "month") String period
-    ) {
+            @RequestParam(required = false, defaultValue = "month") String period) {
         return ResponseEntity.ok(propertyService.getPriceSeries(aptSeq, dealType, period));
     }
+
 }

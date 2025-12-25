@@ -1,9 +1,6 @@
 package com.ssafy.tothezip.property.model.service;
 
-import com.ssafy.tothezip.property.model.PriceSeriesDto;
-import com.ssafy.tothezip.property.model.PropertyDto;
-import com.ssafy.tothezip.property.model.RegionDto;
-import com.ssafy.tothezip.property.model.TagDto;
+import com.ssafy.tothezip.property.model.*;
 
 import java.util.List;
 
