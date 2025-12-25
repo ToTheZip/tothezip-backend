@@ -70,4 +70,12 @@ public interface PropertyMapper {
                         @Param("dealType") String dealType,
                         @Param("fromDate") String fromDate);
 
+        // 지도 viewport 기반 매물 조회
+        List<PropertyCardDto> selectPropertiesByBounds(
+                        @Param("minLat") Double minLat,
+                        @Param("maxLat") Double maxLat,
+                        @Param("minLng") Double minLng,
+                        @Param("maxLng") Double maxLng,
+                        @Param("limit") Integer limit);
+
 }

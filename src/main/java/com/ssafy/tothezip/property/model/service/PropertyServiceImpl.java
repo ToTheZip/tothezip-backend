@@ -139,4 +139,10 @@ public class PropertyServiceImpl implements PropertyService {
         dto.setPoints(points);
         return dto;
     }
+
+    @Override
+    public List<PropertyCardDto> getPropertiesByMapBounds(
+            Double minLat, Double maxLat, Double minLng, Double maxLng) {
+        return propertyMapper.selectPropertiesByBounds(minLat, maxLat, minLng, maxLng, 500);
+    }
 }
